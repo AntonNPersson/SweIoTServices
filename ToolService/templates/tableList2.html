@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <!--Import the jquery library-->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <style>
+            /* Update font and spacing */
+            body {
+              font-family: 'Arial, sans-serif';
+              background-color: #f4f4f4;
+              font-weight: bolder;
+              line-height: 1.5;
+              margin: 0;
+              padding: 2rem;
+            }
+            
+            /* Add some color */
+            :root {
+              --primary-color: #4CAF50;
+              --secondary-color: #6c757d;
+              --light-color: #f8f9faa5;
+              --dark-color: #343a40;
+            }
+            
+            /* Style the logo */
+            #logo{
+                align-self: center;
+                position: absolute;
+                top: 3%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            #nametable{
+              font-weight: bolder;
+              position: relative;
+              top: 1%;
+              font-size: 30px;
+            }
+            
+            /* Style the remove button */
+            #remove-button{
+               background-color: var(--primary-color);
+               color: white;
+               padding: 10px 40px;
+               border: none;
+               border-radius: 0.25rem;
+               cursor: pointer;
+               z-index: 999;
+            }
+
+            /* Style the remove button */
+              #save-button{
+               background-color: var(--primary-color);
+               color: white;
+               padding: 10px 40px;
+               border: none;
+               border-radius: 0.25rem;
+               cursor: pointer;
+               z-index: 999;
+            }
+            
+            /* Style the header */
+            header {
+              background-color: var(--primary-color);
+              color: rgb(192, 192, 192);
+              padding: 1rem;
+            }
+            
+            h1 {
+              font-size: 2rem;
+              margin: 0;
+            }
+            
+            /* Style the back button */
+            #backButton {
+              position: absolute;
+              right: 30px;
+              top: 3%;
+              background-color: var(--primary-color);
+              color: white;
+              padding: 10px 60px;
+              border: none;
+              border-radius: 0.25rem;
+              cursor: pointer;
+              z-index: 999;
+            }
+
+            #buttonContainer {
+                font-family: 'Arial, sans-serif';
+                font-weight: bolder;
+                line-height: 1.5;
+                transform: translate(-50%, -50%);
+                align-items: center;
+                position: absolute;
+                top: 8%;
+                left: 50%;
+            }
+            
+            /* Style the search box */
+            label[for="searchColumn"], label[for="searchInput"] {
+              display: inline-block;
+              margin-bottom: 0.5rem;
+            }
+            
+            #searchContainer {
+              display: flex;
+              align-items: center;
+            }
+            
+            #searchColumn {
+              margin-right: 1rem;
+              background-color: var(--light-color);
+            }
+            
+            #searchInput {
+              width: 200px;
+              background-color: white;
+              border: none;
+              border-radius: 0.25rem;
+              padding: 0.5rem;
+            }
+            
+            /* Style the insert */
+            
+            #uploadDiv {
+              position: relative;
+              top: 5rem;
+            }
+            
+            #errorDiv {
+                position: relative;
+            }
+            
+            /* Style the popup */
+            .popup {
+              position: fixed;
+              left: 0;
+              top: 0;
+              width: 200px;
+              height: 100%;
+              background-color: #ffffff;
+              z-index: 999;
+              box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+              transform: translateX(-100%);
+              transition: transform 0.3s ease-in-out;
+            }
+            
+            .popup.open {
+              transform: translateX(0%);
+            }
+            
+            .popup-content {
+              padding: 10px;
+              height: 100%;
+              overflow-x: hidden;
+              overflow-y: auto;
+            }
+            
+            .popup form {
+              display:list-item;
+              margin: 1rem 0;
+            }
+            
+            .popup form > * {
+              flex: 1;
+              margin: 0.5rem 0.25rem;
+            }
+            
+            .popup label {
+              display: block;
+              margin-bottom: 0.25rem;
+            }
+            
+            .popup input[type="text"], .popup input[type="file"], .popup button[type="submit"] {
+              border: none;
+              border-radius: 0.25rem;
+              padding: 0.5rem;
+              background-color: var(--light-color);
+              width: 100%;
+              text-align: center;
+            }
+            
+            .popup button[type="submit"] {
+              background-color: var(--primary-color);
+              color: white;
+              cursor: pointer;
+            }
+            
+            .popup button[type="submit"]:hover {
+              background-color: var(--dark-color);
+            }
+            
+            /* Style the table */
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 1rem 0;
+            }
+            
+            th, td {
+              padding: 0.75rem;
+              text-align: center;
+              border: 1px solid var(--secondary-color);
+            }
+            
+            th {
+              background-color: var(--primary-color);
+              color: white;
+            }
+            
+            tbody tr:nth-child(even) {
+              background-color: var(--light-color);
+            }
+            
+            /* Hide the scrollbar */
+            #itemList::-webkit-scrollbar {
+              width: 0.5rem;
+            }
+            
+            #itemList::-webkit-scrollbar-track {
+              background-color: var(--light-color);
+            }
+            
+            #itemList::-webkit-scrollbar-thumb {
+              background-color: var(--secondary-color);
+              border-radius: 0.25rem;
+            }
+            
+            /* Toggle button style */
+            .toggle-button {
+                background-color: var(--primary-color);
+               color: white;
+               padding: 10px 60px;
+               border: none;
+               border-radius: 0.25rem;
+               cursor: pointer;
+               z-index: 999;
+            }
+            
+            .toggle-button:hover {
+              background-color: var(--dark-color);
+            }
+
+            #remove-button:hover {
+              background-color: var(--dark-color);
+            }
+              </style>
+              <!--Logo header-->
+              <h1 id="logo">{{orders.__table__.name}}</h1>
+              <hi id="nametable">SweIoT</hi>
+
+              <div id="buttonContainer">
+                <button class="toggle-button", id="toggle-button">
+                    <span class="toggle-button-text">Add</span>
+                </button>
+                <!--Button that removes selected objects from database-->
+                <button class="remove-button" id="remove-button" type="submit" onclick="showConfirmation()">
+                    <span class="remove-button-text">Remove</span>
+                </button>
+                <!--Button that removes selected objects from database-->
+                <button class="save-button" id="save-button" type="submit" onclick="showConfirmation()">
+                    <span class="save-button-text">Save</span>
+                </button>
+              </div>
+              
+              <!--Back button to index-->
+              <button onclick="window.location.href = '/administrator/tools/index'", id="backButton">Back</button>
+              
+              <!--The countainer and input for search/filter the table-->
+              <div id="searchContainer">
+                <label for="searchColumn">Search in:</label>
+                <select id="searchColumn" name="searchColumn">
+                  {% for column in columns %}
+                    <option value="{{ column }}">{{ column|title }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div>
+                <label for="searchInput"></label>
+                <input type="text" onkeyup="filterList()" id="searchInput" name="searchInput">
+              </div>
+            
+              <!--Popup window with insert forms-->
+              <div class="popup", id="popup">
+                <div class="popup-content">
+                    <div id="errorDiv">
+                        <h1>Add {{orders.__table__.name}}</h1>
+                        <form method="POST" action="/administrator/all/{{ orders.__table__.name.replace('public.', '') }}/all/tools/insert">
+                          {% for column in orders.__table__.columns %}
+                            <label for="{{ column.name }}">{{ column.name }}:</label>
+                            <input type="text" name="{{ column.name }}" id="{{ column.name }}"><br>
+                          {% endfor %}
+                            <button type="submit" id="addButton">Submit</button>
+                        </form>
+                    </div>
+                    <div id="uploadDiv">
+                        <form method="POST" action="/administrator/tools/csv" enctype="multipart/form-data">
+                          <label for="csvFile">CSV File (,):</label>
+                          <input type="file" name="csvFile">
+                          <input type="hidden" name="tableName" value="{{ orders.__table__.name.replace('public.', '') }}">
+                          <button type="submit", id="uploadButton">Submit</button>
+                        </form>
+                      </div>
+                </div>
+              </div>
+            
+              <table id="itemList">
+                <thead>
+                  <tr>
+                    {% for column in orders.__table__.columns %}
+                      <th>{{ column.name }}</th>
+                    {% endfor %}
+                    <th>Select</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody">
+                  {% for item in items %}
+                    <tr>
+                      {% for column in orders.__table__.columns %}
+                        <td data-column="{{ column.name }}" class="editable-cell">{{ item[column.name] }}</td>
+                      {% endfor %}
+                      <td><input type="checkbox" name="selectedItems[]" value="{{ item.id }}"></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              
+              
+              <script>
+                // Filter by search input
+              function filterList() {
+                  var input, filter, table, tr, td, i, j, text;
+                  input = document.getElementById("searchInput");
+                  filter = input.value.toUpperCase();
+                  table = document.getElementById("itemList");
+                  tr = table.getElementsByTagName("tr");
+                  var searchColumn = document.getElementById("searchColumn");
+                  var queryText = input.value.toUpperCase();
+                  for (i = 0; i < tr.length; i++) {
+                      td = tr[i].getElementsByTagName("td");
+                      for (j = 0; j < td.length; j++) {
+                          if (td[j].getAttribute("data-column") == searchColumn.value) {
+                              text = td[j].textContent.toUpperCase();
+                              if (text.indexOf(queryText) > -1) {
+                                  tr[i].style.display = "";
+                                  break;
+                              } else {
+                                  tr[i].style.display = "none";
+                              }
+                          }
+                      }
+                  }
+              }
+            
+            const popupTemp = document.querySelector('.popup');
+            const toggleButtonTemp = document.querySelector('.toggle-button');
+            
+            // Open and close event on toggle button
+            toggleButtonTemp.addEventListener('click', () => {
+              if (popupTemp.classList.contains('open')) {
+                popupTemp.classList.remove('open');
+              } else {
+                popupTemp.classList.add('open');
+              }
+            });
+
+            $(document).ready(function() {
+  // Attach double-click event listener to editable cells
+  $('.editable-cell').dblclick(function() {
+    // Retrieve current text value of clicked cell
+    var currentValue = $(this).text();
+    // Replace cell contents with text input field containing current value
+    $(this).html('<input type="text" class="edit-input" value="' + currentValue + '">');
+    // Set focus on the input field
+    $('.edit-input').focus();
+  });
+
+  // Attach blur event listener to input field
+  $(document).on('blur', '.edit-input', function() {
+    // Retrieve new value from input field
+    var newValue = $(this).val();
+    // Replace input field with new value in the cell
+    $(this).parent().text(newValue);
+  });
+
+  // Attach keydown event listener to input field to allow editing with Enter key
+  $(document).on('keydown', '.edit-input', function(e) {
+    if (e.keyCode === 13) { // Enter key
+      // Prevent default Enter key behavior (submitting the form)
+      e.preventDefault();
+      // Retrieve new value from input field
+      var newValue = $(this).val();
+      // Replace input field with new value in the cell
+      $(this).parent().text(newValue);
+    }
+  });
+
+// Attach click event listener to save button
+$('#save-button').click(function() {
+  // Display confirmation dialog
+  var confirmed = confirm('Are you sure you want to save the changes?');
+  if (confirmed) {
+    // Collect updated values from table rows
+    var updatedValues = [];
+    $('#itemList tbody tr').each(function() {
+      var row = $(this);
+      var updatedRow = {};
+      // Loop through each cell in the row and collect the values
+      row.find('td').each(function() {
+        var cell = $(this);
+        updatedRow[cell.data('column')] = cell.text();
+      });
+      updatedValues.push(updatedRow);
+    });
+    // Send AJAX request to update database
+    $.ajax({
+      url: "/administrator/all/{{ orders.__table__.name.replace('public.', '') }}/all/tools/update",
+      type: 'POST',
+      data: JSON.stringify(updatedValues),
+      contentType: 'application/json',
+      success: function(response) {
+        if (response.error){
+          alert('Failed to save changes: ' + response.error)
+        }
+        else{
+          alert('Changes saved successfully.');
+        }
+      },
+      error: function(xhr, status, error) {
+        // Handle error response
+        var parser = new DOMParser();
+        var errorMsg = xhr.status + ": " + parser.parseFromString(xhr.responseText, "text/html").querySelector("p").textContent;
+        alert('Failed to save changes: ' + errorMsg);
+      }
+    });
+  }
+});
+
+
+  });
+
+            
+            $(document).ready(function() {
+            $('#remove-button').click(function(event) {
+            event.preventDefault(); // prevent default form submission
+            // get all checkboxes
+            var checkboxes = document.querySelectorAll('#itemList tbody tr input[type="checkbox"]');
+            // filter for checked checkboxes
+            var checkedCheckboxes = Array.from(checkboxes).filter(function(checkbox) {
+            return checkbox.checked;
+            });
+            // get the IDs of the checked items
+            var checkedIds = Array.from(checkedCheckboxes).map(function(checkbox) {
+            return checkbox.value;
+            });
+            // show a confirmation dialog before removing the items
+            if (confirm('Are you sure you want to remove the selected items?')) {
+            // send an HTTP POST request with the list of checked IDs
+            $.ajax({
+                type: "POST",
+                url: "/administrator/all/{{ orders.__table__.name.replace('public.', '') }}/all/tools/remove",
+                data: { checkedIds: checkedIds },
+                success: function(response) {
+                // handle the response
+                location.reload()
+                console.log(response);
+                },
+                error: function(xhr, status, error) {
+                // handle the error
+                console.log(error);
+                }
+            });
+            }
+        });
+        });
+            </script>
+    </head>
+</html>

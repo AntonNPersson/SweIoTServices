@@ -1,0 +1,1112 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 15.1
+-- Dumped by pg_dump version 15.1
+
+-- Started on 2023-03-30 00:18:16
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 221 (class 1259 OID 73791)
+-- Name: batch; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.batch (
+    id integer NOT NULL,
+    producer_id integer NOT NULL,
+    production_comments character varying,
+    order_id integer NOT NULL
+);
+
+
+ALTER TABLE public.batch OWNER TO postgres;
+
+--
+-- TOC entry 218 (class 1259 OID 73788)
+-- Name: batch_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.batch_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.batch_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3447 (class 0 OID 0)
+-- Dependencies: 218
+-- Name: batch_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.batch_id_seq OWNED BY public.batch.id;
+
+
+--
+-- TOC entry 220 (class 1259 OID 73790)
+-- Name: batch_order_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.batch_order_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.batch_order_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3448 (class 0 OID 0)
+-- Dependencies: 220
+-- Name: batch_order_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.batch_order_id_seq OWNED BY public.batch.order_id;
+
+
+--
+-- TOC entry 219 (class 1259 OID 73789)
+-- Name: batch_producer_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.batch_producer_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.batch_producer_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3449 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: batch_producer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.batch_producer_id_seq OWNED BY public.batch.producer_id;
+
+
+--
+-- TOC entry 222 (class 1259 OID 73811)
+-- Name: config; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.config (
+    key character varying NOT NULL,
+    system_settings json NOT NULL,
+    application_settings json NOT NULL
+);
+
+
+ALTER TABLE public.config OWNER TO postgres;
+
+--
+-- TOC entry 226 (class 1259 OID 73833)
+-- Name: customers; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.customers (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    adress character varying NOT NULL,
+    warranty_time time without time zone,
+    purchase_data character varying
+);
+
+
+ALTER TABLE public.customers OWNER TO postgres;
+
+--
+-- TOC entry 225 (class 1259 OID 73832)
+-- Name: customers_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.customers_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.customers_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3450 (class 0 OID 0)
+-- Dependencies: 225
+-- Name: customers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.customers_id_seq OWNED BY public.customers.id;
+
+
+--
+-- TOC entry 234 (class 1259 OID 73867)
+-- Name: devices; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.devices (
+    id integer NOT NULL,
+    adress character varying NOT NULL,
+    config_key character varying NOT NULL,
+    customer_id integer NOT NULL,
+    batch_id integer NOT NULL,
+    mac_adress character varying,
+    serial_number character varying,
+    hw_version integer[],
+    fw_id integer
+);
+
+
+ALTER TABLE public.devices OWNER TO postgres;
+
+--
+-- TOC entry 233 (class 1259 OID 73866)
+-- Name: devices_batch_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.devices_batch_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.devices_batch_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3451 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: devices_batch_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.devices_batch_id_seq OWNED BY public.devices.batch_id;
+
+
+--
+-- TOC entry 232 (class 1259 OID 73865)
+-- Name: devices_customer_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.devices_customer_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.devices_customer_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3452 (class 0 OID 0)
+-- Dependencies: 232
+-- Name: devices_customer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.devices_customer_id_seq OWNED BY public.devices.customer_id;
+
+
+--
+-- TOC entry 231 (class 1259 OID 73864)
+-- Name: devices_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.devices_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.devices_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3453 (class 0 OID 0)
+-- Dependencies: 231
+-- Name: devices_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.devices_id_seq OWNED BY public.devices.id;
+
+
+--
+-- TOC entry 223 (class 1259 OID 73818)
+-- Name: firmwares; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.firmwares (
+    version integer[] NOT NULL,
+    firmware json NOT NULL,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.firmwares OWNER TO postgres;
+
+--
+-- TOC entry 237 (class 1259 OID 90155)
+-- Name: firmwares_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.firmwares_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.firmwares_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3454 (class 0 OID 0)
+-- Dependencies: 237
+-- Name: firmwares_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.firmwares_id_seq OWNED BY public.firmwares.id;
+
+
+--
+-- TOC entry 236 (class 1259 OID 81962)
+-- Name: rsakeys; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.rsakeys (
+    id integer NOT NULL,
+    privatekey bytea NOT NULL,
+    publickey bytea NOT NULL,
+    device_id integer,
+    customer_id integer
+);
+
+
+ALTER TABLE public.rsakeys OWNER TO postgres;
+
+--
+-- TOC entry 235 (class 1259 OID 81961)
+-- Name: keys_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.keys_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.keys_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3455 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: keys_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.keys_id_seq OWNED BY public.rsakeys.id;
+
+
+--
+-- TOC entry 217 (class 1259 OID 73780)
+-- Name: orders; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.orders (
+    id integer NOT NULL,
+    order_date date NOT NULL,
+    order_quantity integer NOT NULL,
+    order_information character varying,
+    delivered_date date,
+    delivered_quantity integer
+);
+
+
+ALTER TABLE public.orders OWNER TO postgres;
+
+--
+-- TOC entry 216 (class 1259 OID 73779)
+-- Name: orders_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.orders_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.orders_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3456 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: orders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.orders_id_seq OWNED BY public.orders.id;
+
+
+--
+-- TOC entry 215 (class 1259 OID 73771)
+-- Name: producers; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.producers (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    adress character varying
+);
+
+
+ALTER TABLE public.producers OWNER TO postgres;
+
+--
+-- TOC entry 214 (class 1259 OID 73770)
+-- Name: producers_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.producers_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.producers_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3457 (class 0 OID 0)
+-- Dependencies: 214
+-- Name: producers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.producers_id_seq OWNED BY public.producers.id;
+
+
+--
+-- TOC entry 224 (class 1259 OID 73825)
+-- Name: role; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.role (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    read boolean NOT NULL,
+    write boolean NOT NULL,
+    scope integer NOT NULL
+);
+
+
+ALTER TABLE public.role OWNER TO postgres;
+
+--
+-- TOC entry 230 (class 1259 OID 73844)
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    email character varying NOT NULL,
+    role_id integer NOT NULL,
+    customer_id integer NOT NULL,
+    password character varying
+);
+
+
+ALTER TABLE public.users OWNER TO postgres;
+
+--
+-- TOC entry 229 (class 1259 OID 73843)
+-- Name: users_customer_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.users_customer_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.users_customer_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3458 (class 0 OID 0)
+-- Dependencies: 229
+-- Name: users_customer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.users_customer_id_seq OWNED BY public.users.customer_id;
+
+
+--
+-- TOC entry 227 (class 1259 OID 73841)
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.users_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.users_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3459 (class 0 OID 0)
+-- Dependencies: 227
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+
+
+--
+-- TOC entry 228 (class 1259 OID 73842)
+-- Name: users_role_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.users_role_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.users_role_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3460 (class 0 OID 0)
+-- Dependencies: 228
+-- Name: users_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.users_role_id_seq OWNED BY public.users.role_id;
+
+
+--
+-- TOC entry 3224 (class 2604 OID 73794)
+-- Name: batch id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.batch ALTER COLUMN id SET DEFAULT nextval('public.batch_id_seq'::regclass);
+
+
+--
+-- TOC entry 3225 (class 2604 OID 73795)
+-- Name: batch producer_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.batch ALTER COLUMN producer_id SET DEFAULT nextval('public.batch_producer_id_seq'::regclass);
+
+
+--
+-- TOC entry 3226 (class 2604 OID 73796)
+-- Name: batch order_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.batch ALTER COLUMN order_id SET DEFAULT nextval('public.batch_order_id_seq'::regclass);
+
+
+--
+-- TOC entry 3228 (class 2604 OID 73836)
+-- Name: customers id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customers ALTER COLUMN id SET DEFAULT nextval('public.customers_id_seq'::regclass);
+
+
+--
+-- TOC entry 3232 (class 2604 OID 73870)
+-- Name: devices id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.devices ALTER COLUMN id SET DEFAULT nextval('public.devices_id_seq'::regclass);
+
+
+--
+-- TOC entry 3233 (class 2604 OID 73871)
+-- Name: devices customer_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.devices ALTER COLUMN customer_id SET DEFAULT nextval('public.devices_customer_id_seq'::regclass);
+
+
+--
+-- TOC entry 3234 (class 2604 OID 73872)
+-- Name: devices batch_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.devices ALTER COLUMN batch_id SET DEFAULT nextval('public.devices_batch_id_seq'::regclass);
+
+
+--
+-- TOC entry 3227 (class 2604 OID 90156)
+-- Name: firmwares id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.firmwares ALTER COLUMN id SET DEFAULT nextval('public.firmwares_id_seq'::regclass);
+
+
+--
+-- TOC entry 3223 (class 2604 OID 73783)
+-- Name: orders id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders ALTER COLUMN id SET DEFAULT nextval('public.orders_id_seq'::regclass);
+
+
+--
+-- TOC entry 3222 (class 2604 OID 73774)
+-- Name: producers id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.producers ALTER COLUMN id SET DEFAULT nextval('public.producers_id_seq'::regclass);
+
+
+--
+-- TOC entry 3235 (class 2604 OID 81965)
+-- Name: rsakeys id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rsakeys ALTER COLUMN id SET DEFAULT nextval('public.keys_id_seq'::regclass);
+
+
+--
+-- TOC entry 3229 (class 2604 OID 73847)
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- TOC entry 3230 (class 2604 OID 73848)
+-- Name: users role_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users ALTER COLUMN role_id SET DEFAULT nextval('public.users_role_id_seq'::regclass);
+
+
+--
+-- TOC entry 3231 (class 2604 OID 73849)
+-- Name: users customer_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users ALTER COLUMN customer_id SET DEFAULT nextval('public.users_customer_id_seq'::regclass);
+
+
+--
+-- TOC entry 3425 (class 0 OID 73791)
+-- Dependencies: 221
+-- Data for Name: batch; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.batch (id, producer_id, production_comments, order_id) FROM stdin;
+1	1	Test batch	1
+\.
+
+
+--
+-- TOC entry 3426 (class 0 OID 73811)
+-- Dependencies: 222
+-- Data for Name: config; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.config (key, system_settings, application_settings) FROM stdin;
+123123	{"test": "test"}	{"test": "test"}
+\.
+
+
+--
+-- TOC entry 3430 (class 0 OID 73833)
+-- Dependencies: 226
+-- Data for Name: customers; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customers (id, name, adress, warranty_time, purchase_data) FROM stdin;
+1	SweIoT	default	00:00:00	Unlimited
+\.
+
+
+--
+-- TOC entry 3438 (class 0 OID 73867)
+-- Dependencies: 234
+-- Data for Name: devices; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.devices (id, adress, config_key, customer_id, batch_id, mac_adress, serial_number, hw_version, fw_id) FROM stdin;
+2	Avenida Maisonnave, 33	123123	1	1	65:03:2a:15:51:9c	123	{0,0,0}	\N
+\.
+
+
+--
+-- TOC entry 3427 (class 0 OID 73818)
+-- Dependencies: 223
+-- Data for Name: firmwares; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.firmwares (version, firmware, id) FROM stdin;
+{0,0,0}	{"test": "test"}	1
+\.
+
+
+--
+-- TOC entry 3421 (class 0 OID 73780)
+-- Dependencies: 217
+-- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.orders (id, order_date, order_quantity, order_information, delivered_date, delivered_quantity) FROM stdin;
+1	2023-03-16	1	Test order	2023-03-16	1
+\.
+
+
+--
+-- TOC entry 3419 (class 0 OID 73771)
+-- Dependencies: 215
+-- Data for Name: producers; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.producers (id, name, adress) FROM stdin;
+1	JRE	Unknown
+\.
+
+
+--
+-- TOC entry 3428 (class 0 OID 73825)
+-- Dependencies: 224
+-- Data for Name: role; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.role (id, name, read, write, scope) FROM stdin;
+0	System Administrator	t	t	3
+\.
+
+
+--
+-- TOC entry 3440 (class 0 OID 81962)
+-- Dependencies: 236
+-- Data for Name: rsakeys; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.rsakeys (id, privatekey, publickey, device_id, customer_id) FROM stdin;
+5	\\x2d2d2d2d2d424547494e2050524956415445204b45592d2d2d2d2d0a4d494945765149424144414e42676b71686b6947397730424151454641415343424b63776767536a41674541416f494241514472687039336f35496359652b2b0a51724d39345738394e68734b595442797064563434626b616761556f6d59647376434e79665477627376307670795961697638504f32376653617268334d59300a30566b527a384e4f4b596a3032735333686a566330387670344a396b4f5254635350694b4662666c577a4e66354b71563249504a58626b43486944624e50757a0a6f41744f7872667970434a63417530564e62693239566f63446566464d3771724b6a643245664f3857584f33714f5034446e6f6573564f7376535536565836500a766931426a4672485670764737486b557979387a394e63585045745674642f5974354d317a67596e64444861442b7834746e6848775a596c316a51594b58724c0a6d53464f49555a74363535497176456958704d6c344e74475a6e38704d646c5077417a6367305a5a366c41336f74462f4a62594e4c317763317638474b774b620a4778652f3742363941674d424141454367674541614f6c63456a5939794c2f46513270426e6b4254525342624e696e706f304145555761326862795848586b5a0a376c4431747a4e6175586e6d74726e4e53736838616351504649346a664a315465735a2f317550466577556357506b7a354133337169513773692b5977464e2b0a3238727a547372793063726f6e502f6d446e35563462594b5359757a4667484a566f396c5367395263396378364f7479774e356671377570696c4b5657577a680a4a57366d495777424e502b5153556f6e31674f6758594a59705368325374355866444a6748786f4c53695132715276324d2b592b386c48685539687346385a660a47755643792f3639326c49766b4b313279676277616d38586636307830582b515a62534f4775793032726c667874727779674d6a3351572f59553061315237470a487837504434707a4b337a53796b764d4b637131786a5758334f794d477a6b63337566304d6d65436a774b4267514434667958386854414e77744968556269480a4d4c422b526e63415176386c374343786349523972726f4a623657484252305a587351426b51576a377a42543779437a6b45686b44486e4852426a4c675a4a790a7757766e77316f7a3153674b30724c78426f657a555649366d73437631542b586f3568723370624462455a6d514b46502f446c3776664a4345694d7a4e74526c0a6e4b7865554b614333466158783838464d6e4f614d75367531774b42675144796f7a5977567045487950632f547631756e427a4e55346738616c4d4c346477450a5765586e6f63665a4771424c4f6166592b615975656b325131354b48564b76722b716f4f52516639446b7a69456446476f55757848334e6973627653376b5a4a0a48463838306e77724d387144484a6543796d57352b62327052314168594c44696351786872737137413061664f524d433770634b4a55374f30685577537454300a4c6371577864425169774b426751446e72454d53426d6f69716a7556374d614934342f6f616e4750774f5a3379496c435a4a42685449454e5178576a703954560a546c435731556e59364b713531667336375931514759462f6b6245384b66554c482b456d466938476d2f66552f314c732b7857517a49524a4e76586c2b4835740a4e5978704a5143522b5751342b4a42734c633635327744394d454f342f366c4e67714141336c67664d4b566170474952696c50557378397279514b42674134620a4576466f6476482b36764452524d6144614f452b382f4b664d386a4444716c71474957493044643835736934783174443244646e674d376b3257336f724434420a79705564796b4d5a363770513074764b554c3478562b487139304a682b3941515344456641337a336539523365773974654e4342426c65712f367552465864300a6e77576d7862357469464f46572b655675303470735255772f57356253316f4f74334a6765615856416f474142674f4d4b7a43306750676f72326c72427a67710a774579494f49706738706f4c5441775854323575644a655a43346e4964346a4a434e466c514b74394553613970686f64624761344d545048566572444b6b464f0a4d51532f5536796d46304637767a30433742704457796b597375626b486746795966306b59796d46636d33452f6b6258306168424235756837713053343376670a2b2b52675a3179596c5870674b48675a653657675952553d0a2d2d2d2d2d454e442050524956415445204b45592d2d2d2d2d0a	\\x2d2d2d2d2d424547494e205055424c4943204b45592d2d2d2d2d0a4d494942496a414e42676b71686b6947397730424151454641414f43415138414d49494243674b43415145413634616664364f5348474876766b4b7a506546760a50545962436d457763715856654f4735476f476c4b4a6d48624c776a636e303847374c394c36636d476f722f447a747533306d7134647a474e4e465a45632f440a54696d49394e724574345931584e504c366543665a446b5533456a34696857333556737a582b53716c6469447956323541683467327a54377336414c547361330a3871516958414c7446545734747656614841336e78544f3671796f336468487a76466c7a74366a6a2b41353648724654724c306c4f6c562b6a373474515978610a7831616278757835464d73764d2f5458467a784c56625866324c65544e6334474a33517832672f73654c5a34523847574a64593047436c3679356b68546946470a62657565534b7278496c36544a654462526d5a2f4b54485a5438414d33494e47576570514e364c526679573244533963484e622f426973436d787358762b77650a76514944415141420a2d2d2d2d2d454e44205055424c4943204b45592d2d2d2d2d0a	2	1
+\.
+
+
+--
+-- TOC entry 3434 (class 0 OID 73844)
+-- Dependencies: 230
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.users (id, name, email, role_id, customer_id, password) FROM stdin;
+3	user	user@user.com	0	1	pbkdf2:sha256:260000$VWEh9uh5shrFU1nz$1515b1eae5b09469743f4e3553500c8cef32f07d954c9124569bbe5275724bad
+\.
+
+
+--
+-- TOC entry 3461 (class 0 OID 0)
+-- Dependencies: 218
+-- Name: batch_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.batch_id_seq', 1, true);
+
+
+--
+-- TOC entry 3462 (class 0 OID 0)
+-- Dependencies: 220
+-- Name: batch_order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.batch_order_id_seq', 1, false);
+
+
+--
+-- TOC entry 3463 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: batch_producer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.batch_producer_id_seq', 1, false);
+
+
+--
+-- TOC entry 3464 (class 0 OID 0)
+-- Dependencies: 225
+-- Name: customers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.customers_id_seq', 1, true);
+
+
+--
+-- TOC entry 3465 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: devices_batch_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.devices_batch_id_seq', 1, false);
+
+
+--
+-- TOC entry 3466 (class 0 OID 0)
+-- Dependencies: 232
+-- Name: devices_customer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.devices_customer_id_seq', 1, false);
+
+
+--
+-- TOC entry 3467 (class 0 OID 0)
+-- Dependencies: 231
+-- Name: devices_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.devices_id_seq', 2, true);
+
+
+--
+-- TOC entry 3468 (class 0 OID 0)
+-- Dependencies: 237
+-- Name: firmwares_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.firmwares_id_seq', 1, true);
+
+
+--
+-- TOC entry 3469 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: keys_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.keys_id_seq', 5, true);
+
+
+--
+-- TOC entry 3470 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.orders_id_seq', 5, true);
+
+
+--
+-- TOC entry 3471 (class 0 OID 0)
+-- Dependencies: 214
+-- Name: producers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.producers_id_seq', 2, true);
+
+
+--
+-- TOC entry 3472 (class 0 OID 0)
+-- Dependencies: 229
+-- Name: users_customer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.users_customer_id_seq', 1, false);
+
+
+--
+-- TOC entry 3473 (class 0 OID 0)
+-- Dependencies: 227
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.users_id_seq', 3, true);
+
+
+--
+-- TOC entry 3474 (class 0 OID 0)
+-- Dependencies: 228
+-- Name: users_role_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.users_role_id_seq', 1, false);
+
+
+--
+-- TOC entry 3241 (class 2606 OID 73800)
+-- Name: batch batch_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.batch
+    ADD CONSTRAINT batch_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3243 (class 2606 OID 73817)
+-- Name: config config_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.config
+    ADD CONSTRAINT config_pkey PRIMARY KEY (key);
+
+
+--
+-- TOC entry 3251 (class 2606 OID 73840)
+-- Name: customers customers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customers
+    ADD CONSTRAINT customers_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3259 (class 2606 OID 73876)
+-- Name: devices devices_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.devices
+    ADD CONSTRAINT devices_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3245 (class 2606 OID 90164)
+-- Name: firmwares firmwares_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.firmwares
+    ADD CONSTRAINT firmwares_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3261 (class 2606 OID 81969)
+-- Name: rsakeys keys_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rsakeys
+    ADD CONSTRAINT keys_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3263 (class 2606 OID 81971)
+-- Name: rsakeys keys_privatekey_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rsakeys
+    ADD CONSTRAINT keys_privatekey_key UNIQUE (privatekey);
+
+
+--
+-- TOC entry 3265 (class 2606 OID 81973)
+-- Name: rsakeys keys_publickey_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rsakeys
+    ADD CONSTRAINT keys_publickey_key UNIQUE (publickey);
+
+
+--
+-- TOC entry 3239 (class 2606 OID 73787)
+-- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3237 (class 2606 OID 73778)
+-- Name: producers producers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.producers
+    ADD CONSTRAINT producers_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3247 (class 2606 OID 73902)
+-- Name: role role_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.role
+    ADD CONSTRAINT role_name_key UNIQUE (name);
+
+
+--
+-- TOC entry 3249 (class 2606 OID 73831)
+-- Name: role role_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.role
+    ADD CONSTRAINT role_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3253 (class 2606 OID 73900)
+-- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_email_key UNIQUE (email);
+
+
+--
+-- TOC entry 3255 (class 2606 OID 73898)
+-- Name: users users_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_name_key UNIQUE (name);
+
+
+--
+-- TOC entry 3257 (class 2606 OID 73853)
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3270 (class 2606 OID 73892)
+-- Name: devices fk_batch; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.devices
+    ADD CONSTRAINT fk_batch FOREIGN KEY (batch_id) REFERENCES public.batch(id);
+
+
+--
+-- TOC entry 3271 (class 2606 OID 73887)
+-- Name: devices fk_config_key; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.devices
+    ADD CONSTRAINT fk_config_key FOREIGN KEY (config_key) REFERENCES public.config(key);
+
+
+--
+-- TOC entry 3268 (class 2606 OID 73859)
+-- Name: users fk_customer; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES public.customers(id);
+
+
+--
+-- TOC entry 3272 (class 2606 OID 73882)
+-- Name: devices fk_customer; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.devices
+    ADD CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES public.customers(id);
+
+
+--
+-- TOC entry 3274 (class 2606 OID 81979)
+-- Name: rsakeys fk_customer; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rsakeys
+    ADD CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES public.customers(id);
+
+
+--
+-- TOC entry 3275 (class 2606 OID 81974)
+-- Name: rsakeys fk_device; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rsakeys
+    ADD CONSTRAINT fk_device FOREIGN KEY (device_id) REFERENCES public.devices(id);
+
+
+--
+-- TOC entry 3273 (class 2606 OID 90165)
+-- Name: devices fk_fw; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.devices
+    ADD CONSTRAINT fk_fw FOREIGN KEY (fw_id) REFERENCES public.firmwares(id) NOT VALID;
+
+
+--
+-- TOC entry 3266 (class 2606 OID 73806)
+-- Name: batch fk_order; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.batch
+    ADD CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES public.orders(id);
+
+
+--
+-- TOC entry 3267 (class 2606 OID 73801)
+-- Name: batch fk_producer; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.batch
+    ADD CONSTRAINT fk_producer FOREIGN KEY (producer_id) REFERENCES public.producers(id);
+
+
+--
+-- TOC entry 3269 (class 2606 OID 73854)
+-- Name: users fk_role; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES public.role(id);
+
+
+-- Completed on 2023-03-30 00:18:16
+
+--
+-- PostgreSQL database dump complete
+--
+

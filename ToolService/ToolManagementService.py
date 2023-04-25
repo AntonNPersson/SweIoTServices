@@ -58,8 +58,6 @@ def login():
     if request.method == 'POST':
         user = request.form['user']
         password = request.form['password']
-        if user == '' or password == '':
-            return 'Username or password incorrect', 401
         userRow = GetObjectFromTable(user, 'users', 'name')
         if userRow is None or not check_password_hash(userRow.password, password):
             return 'Username or password incorrect', 401

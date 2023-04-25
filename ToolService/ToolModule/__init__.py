@@ -1,7 +1,8 @@
 from flask import render_template, redirect, Flask, request, session, jsonify, abort, json
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import HTTPException
-from SIOTC import GetModel, GetTable, executeQuery, GetAllObjectsInModel, admin_required, GetSession
+from SIOTC import GetModel, GetTable, executeQuery, GetAllObjectsInModel, admin_required, GetSession, CreateTableObject
+from SIOTC.helperhttps import device_ownership_required
 from flask_jwt_extended import create_access_token, get_current_user, JWTManager, jwt_required, current_user
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address

@@ -1,23 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Index</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<title>Home</title>
 	<style>
 		body {
 			font-family: Arial, sans-serif;
 			background-color: #f4f4f4;
-			padding: 2rem;
+			width:50%;
+			margin: 0 auto;
 		}
 		
 		h1 {
+			font-family: Arial, sans-serif;
+			text-align: center;
+			transform: translate(-5%, 0);
+			margin: 0 auto;
 			font-size: 2rem;
+			margin-top: 4rem;
 			margin-bottom: 1rem;
+		}
+
+		u {
+			text-decoration-thickness: 0.2rem;
 		}
 		
 		button {
 			border: none;
 			border-radius: 0.25rem;
-			padding: 0.5rem 1rem;
+			padding: 0.5rem 0.5rem;
 			background-color: #4CAF50;
 			color: white;
 			font-size: 1rem;
@@ -33,12 +44,78 @@
 		
 		button:focus {
 			outline: none;
-			box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #4CAF50;
 		}
+
+		#secretButton {
+			cursor: pointer;
+			text-align: center;
+			margin-left: 4rem;
+			margin-top: 3rem;
+			width: 35%;
+		}
+
+		#secretButton:hover {
+			background-color: #3e8e41;
+		}
+
+		#secretList {
+			display: none;
+			cursor: default;
+			text-align: center;
+			margin-left: 4rem;
+			width: 35%;
+		}
+
+		#secretButton1 {
+			align-self: right;
+			cursor: pointer;
+			text-align: center;
+			margin-left: 3rem;
+			margin-top: 3rem;
+			width: 35%;
+		}
+
+		#secretButton1:hover {
+			background-color: #3e8e41;
+		}
+
+				.tooltip {
+		position: relative;
+		display: inline-block;
+		}
+
+		.tooltip .tooltiptext {
+		visibility: hidden;
+		width: 120px;
+		background-color: #5555559f;
+		color: #fff;
+		text-align: center;
+		border-radius: 6px;
+		padding: 10px 10px;
+		position: absolute;
+		z-index: 1;
+		bottom: -300%;
+		left: 50%;
+		margin-left: -60px;
+		opacity: 0;
+		transition: opacity 0.3s;
+		}
+
+		.tooltip:hover .tooltiptext {
+  		visibility: visible;
+  		opacity: 1;
+		}
+
+		.menu-icon {
+  		font-size: 1.2em;
+  		color: #333;
+  		margin-left: 5px;
+}
+
 	</style>
 </head>
 <body>
-	<h1>Index</h1>
+	<u><h1 id="home">Home</h1></u>
 	<button onclick="window.location.href = '/administrator/all/devices/all/tools/manager'">Devices</button>
 	<button onclick="window.location.href = '/administrator/all/batches/all/tools/manager'">Batches</button>
 	<button onclick="window.location.href = '/administrator/all/configs/all/tools/manager'">Configs</button>
@@ -49,5 +126,27 @@
 	<button onclick="window.location.href = '/administrator/all/producers/all/tools/manager'">Producers</button>
 	<button onclick="window.location.href = '/administrator/all/roles/all/tools/manager'">Roles</button>
 	<button onclick="window.location.href = '/administrator/all/users/all/tools/manager'">Users</button>
+	<button id="secretButton" class="tooltip">Account Settings
+		<span class="tooltiptext">Settings for your account, features will increase.</span>
+		<span class="menu-icon">&#9776;</span>
+	</button>
+	<button id="secretButton1" class="tooltip">Database Log (WIP)
+		<span class="tooltiptext">View the database log. Does not work currently</span>
+		<span class="menu-icon">&#9776;</span>
+	</button>
+	<form id="secretList">
+		<label for="username">Old Password:</label>
+		<input type="text" id="username" name="user"><br><br>
+		<label for="password">New Password:</label>
+		<input type="password" id="password" name="password"><br><br>
+		<button type="submit">Submit</button>
+	</form>
+	<script>
+	$(document).ready(function() {
+		$("#secretButton").click(function() {
+		  $("#secretList").toggle();
+		});
+	  });
+	</script>
 </body>
 </html>

@@ -1,8 +1,36 @@
-from ToolModule import executeQuery, GetModel, jsonify, GetTable, request, GetSession, HTTPException, abort, json, datetime
+from ToolModule import executeQuery, GetModel, jsonify, GetTable, request, GetSession, HTTPException, abort, json, datetime, CreateTableObject
 import json
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError, ProgrammingError
 from sqlalchemy import text
+
+def GetRelatedTableFromForeignKey(tableName, foreignKey, columnName):
+    def queryFunc(session, base, tableName, foreignKey):
+        # Construct the full table name (including schema) and use it to create a table object
+        realName = "public." + (tableName)
+        print(realName)
+        table = CreateTableObject(realName, base.metadata)
+        # Check if the table object exists
+        if table is None:
+            return False, 'Error: Table not found'
+        # Get the column object for the specified foreign key
+        column = table.columns.get(columnName)
+        # Check if the column object exists
+        if column is None:
+            return False, 'Error: Column not found'
+        # Get the foreign key object for the specified foreign key
+        foreignKeyObject = column.foreign_keys
+        # Check if the foreign key object exists
+        if foreignKeyObject is None:
+            return False, 'Error: Foreign key not found'
+        # Get the table name from the foreign key object
+        try:
+            relatedTable = str(foreignKeyObject).split('.')[1]
+            # Return the table name
+            return relatedTable
+        except:
+            return False, 'Error: Unable to get related table'
+    return executeQuery(queryFunc, tableName, foreignKey)
 
 def InsertToTable(table, values):
     def queryFunc(session, base, values):
@@ -15,7 +43,7 @@ def InsertToTable(table, values):
         columnsModel = tableModel.columns.keys()
         newValues = {}
         # Ensure that values are provided
-        assert values is not None, "Error: No values provided"
+        if values is None: "Error: No values provided"
         # Loop through the columns in the table and create a dictionary
         # with column names and values to insert
         for column in columnsModel:
@@ -64,9 +92,10 @@ def RemoveFromTable(table, id):
         tableModel = base.metadata.tables.get(name)
         # Check if the table exists in the metadata
         if tableModel is None:
-            return False, 'Error: Table not found'
+            return 404, 'Error: Table not found'
         # Ensure that an ID is provided
-        assert id is not None, "Error: No ID provided"
+        if id is not None:
+            return 404, "Error: No ID provided"
         # Create a query to remove a row with the given ID from the table
         query = tableModel.delete().where(tableModel.c.id == id)
         try:
@@ -75,7 +104,7 @@ def RemoveFromTable(table, id):
             session.commit()
             return True, None
         except Exception as e:
-            return False, str(e)
+            return 400, str(e)
     return executeQuery(queryFunc, table, id)
 
 
@@ -88,7 +117,7 @@ def GetObjectFromTable(value, table, column):
         # Check if an error occurred during retrieval
         if theTable is None:
             print('Error: No table exist with provided values')
-            return None, 404
+            return 'Error: No table exist with provided values', 404
         # If no error, query the row that matches the provided value
         else:
             return theTable

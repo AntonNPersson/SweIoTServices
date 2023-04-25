@@ -43,7 +43,7 @@
             #remove-button{
                background-color: var(--primary-color);
                color: white;
-               padding: 10px 40px;
+               padding: 10px 50px;
                border: none;
                border-radius: 0.25rem;
                cursor: pointer;
@@ -52,9 +52,21 @@
 
             /* Style the remove button */
               #save-button{
+               visibility: hidden;
                background-color: var(--primary-color);
                color: white;
-               padding: 10px 40px;
+               padding: 10px 50px;
+               border: none;
+               border-radius: 0.25rem;
+               cursor: pointer;
+               z-index: 999;
+            }
+
+            /* Style the remove button */
+              #editButton{
+               background-color: var(--primary-color);
+               color: white;
+               padding: 10px 60px;
                border: none;
                border-radius: 0.25rem;
                cursor: pointer;
@@ -91,7 +103,7 @@
                 font-family: 'Arial, sans-serif';
                 font-weight: bolder;
                 line-height: 1.5;
-                transform: translate(-50%, -50%);
+                transform: translate(-40%, -50%);
                 align-items: center;
                 position: absolute;
                 top: 8%;
@@ -246,6 +258,10 @@
             #remove-button:hover {
               background-color: var(--dark-color);
             }
+
+            td a.hidden-link {
+              display: none;
+            }
               </style>
               <!--Logo header-->
               <h1 id="logo">{{orders.__table__.name}}</h1>
@@ -260,6 +276,9 @@
                     <span class="remove-button-text">Remove</span>
                 </button>
                 <!--Button that removes selected objects from database-->
+                <button class="editButton" id="editButton" type="submit" onclick="showConfirmation()">
+                  <span class="edit-button-text">Edit</span>
+                </button>
                 <button class="save-button" id="save-button" type="submit" onclick="showConfirmation()">
                     <span class="save-button-text">Save</span>
                 </button>
@@ -319,7 +338,7 @@
                   {% for item in items %}
                     <tr>
                       {% for column in orders.__table__.columns %}
-                        <td data-column="{{ column.name }}" class="editable-cell">{{ item[column.name] }}</td>
+                        <td data-column="{{ column.name }}" class="editable-cell" onclick="window.location.href='/administrator/all/{{ orders.__table__.name }}/all/tools/getRelatedTable/{{column.name}}/{{ item[column.name] }}'">{{ item[column.name] }}</td>
                       {% endfor %}
                       <td><input type="checkbox" name="selectedItems[]" value="{{ item.id }}"></td>
                     </tr>
@@ -329,6 +348,30 @@
               
               
               <script>
+
+editButton.addEventListener('click', function() {
+  // Loop through all selected checkboxes and toggle the contenteditable attribute
+  const selectedCheckboxes = document.querySelectorAll('input[name="selectedItems[]"]:checked');
+  if (editButton.textContent != "Exit" && selectedCheckboxes.length > 0) {
+    var saveButton = document.getElementById("save-button");
+    saveButton.style.visibility = "visible";
+    editButton.textContent = "Exit";
+    selectedCheckboxes.forEach(function(checkbox) {
+      const row = checkbox.closest('tr');
+      const cells = row.querySelectorAll('.editable-cell');
+      cells.forEach(function(cell) {
+        cell.contentEditable = "true";
+        cell.innerHTML = `<input type="text" value="${cell.innerHTML}">`;
+        const input = cell.querySelector('input');
+        input.addEventListener('input', function() {
+        cell.innerHTML = input.value;
+      });
+      });
+    });
+  } else if (editButton.textContent == "Exit") {
+    location.reload();
+  };
+});
                 // Filter by search input
               function filterList() {
                   var input, filter, table, tr, td, i, j, text;
@@ -365,37 +408,6 @@
                 popupTemp.classList.add('open');
               }
             });
-
-            $(document).ready(function() {
-  // Attach double-click event listener to editable cells
-  $('.editable-cell').dblclick(function() {
-    // Retrieve current text value of clicked cell
-    var currentValue = $(this).text();
-    // Replace cell contents with text input field containing current value
-    $(this).html('<input type="text" class="edit-input" value="' + currentValue + '">');
-    // Set focus on the input field
-    $('.edit-input').focus();
-  });
-
-  // Attach blur event listener to input field
-  $(document).on('blur', '.edit-input', function() {
-    // Retrieve new value from input field
-    var newValue = $(this).val();
-    // Replace input field with new value in the cell
-    $(this).parent().text(newValue);
-  });
-
-  // Attach keydown event listener to input field to allow editing with Enter key
-  $(document).on('keydown', '.edit-input', function(e) {
-    if (e.keyCode === 13) { // Enter key
-      // Prevent default Enter key behavior (submitting the form)
-      e.preventDefault();
-      // Retrieve new value from input field
-      var newValue = $(this).val();
-      // Replace input field with new value in the cell
-      $(this).parent().text(newValue);
-    }
-  });
 
 // Attach click event listener to save button
 $('#save-button').click(function() {
@@ -439,7 +451,6 @@ $('#save-button').click(function() {
 });
 
 
-  });
 
             
             $(document).ready(function() {

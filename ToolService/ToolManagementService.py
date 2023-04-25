@@ -1,10 +1,18 @@
 from ToolModule import jsonify, get_remote_address, Limiter, session, check_password_hash, GetModel, GetAllObjectsInModel, render_template, generate_password_hash, Flask, request, redirect, io, csv, GetTable
-from ToolModule.Database import InsertToTable, RemoveFromTable, GetObjectFromTable, UpdateTable
+from ToolModule.Database import InsertToTable, RemoveFromTable, GetObjectFromTable, UpdateTable, GetRelatedTableFromForeignKey
 from ToolModule.htmlHelper import GetList
 from ToolModule import deviceName, batchName, configName, customerName, firmwareName, keysName, ordersName, producersName, roleName, usersName, index, loginName, csvName, insertName, removeName
 
 https = Flask(__name__)
 https.secret_key = 'hej'
+
+@https.route('/administrator/all/<objects>/all/tools/getRelatedTable/<key_type>/<foreign_key>', methods=['GET'])
+def get_foreign_key_table(objects, foreign_key, key_type):
+    table = GetRelatedTableFromForeignKey(objects, foreign_key, key_type)
+    if(str(table).startswith('(False') or table == False):
+        return redirect(request.referrer)
+    else:
+        return redirect('/administrator/all/' + str(table) + '/all/tools/manager')
 
 # App routes
 @https.route(deviceName, methods=['GET'])
@@ -55,14 +63,16 @@ def Index():
 
 @https.route(loginName, methods=['POST', 'GET'])
 def login():
+    # retrieve form data from the HTTP request
     if request.method == 'POST':
         user = request.form['user']
         password = request.form['password']
         userRow = GetObjectFromTable(user, 'users', 'name')
+        # check if 'password' field is in the values dictionary
         if userRow is None or not check_password_hash(userRow.password, password):
             return 'Username or password incorrect', 401
         if userRow.role_id != 0:
-            return 'Access Denied', 400
+            return 'Access Denied', 403
         session['user_id'] = userRow.id
         return redirect(index)
     if request.method == 'GET':
@@ -122,6 +132,7 @@ def Upload():
                         convertedRow[columnName] = convertedValue # Set row to convertedValue
                     except ValueError as e:
                         print(f"Error converting value '{row[columnName]}' to {columnType}: {e}")
+                        return 'Error converting value', 400
                 InsertToTable(tableName, convertedRow)
         return 'Upload successful', 200
     except Exception as e:
@@ -135,4 +146,4 @@ def updateTableValues(table_name):
    
 
 if __name__ == '__main__':
-    https.run(ssl_context='adhoc', debug=True)
+    https.run(ssl_context='adhoc')

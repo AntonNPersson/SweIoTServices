@@ -51,4 +51,4 @@ def protected():
     return jsonify(id=current_user.id, username=current_user.name)
 
 if __name__ == '__main__':
-    https.run(ssl_context='adhoc', port=5001, host='0.0.0.0')
+    https.run(port=5001, host='0.0.0.0')

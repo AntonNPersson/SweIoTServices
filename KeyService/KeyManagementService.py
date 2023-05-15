@@ -68,5 +68,5 @@ def SplitSignMessageMain(device_id):
         return 'Task failed'
 
 if __name__ == "__main__":
-    https.run(ssl_context='adhoc', port=5002, host='0.0.0.0')
+    https.run(port=5002, host='0.0.0.0')
     

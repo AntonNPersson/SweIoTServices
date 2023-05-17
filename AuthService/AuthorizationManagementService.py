@@ -36,9 +36,9 @@ def userLookupCallback(jwtHeader, jwtData):
 def login():
     username = request.form.get("name", None)
     password = request.form.get("password", None)
-    userPass = GetPasswordFromUsername(username)
+    userPass = GetObjectFromTable(username, 'users', 'password')
     userId = GetObjectFromTable(username, 'users', 'id')
-    if userPass is None or not check_password_hash(userPass, password):
+    if userPass is None or not check_password_hash(str(userPass), password):
         return 'Username or password incorrect', 401
     accessToken = create_access_token(identity=userId)
     return jsonify(jwt=accessToken), 200

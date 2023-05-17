@@ -34,8 +34,10 @@ def userLookupCallback(jwtHeader, jwtData):
 # https://localhost:5000/login
 @https.route(loginName, methods=["POST"])
 def login():
-    username = request.form.get("name", None)
-    password = request.form.get("password", None)
+    data = request.get_json()
+
+    username = data.get("name")
+    password = data.get("password")
     user = GetObjectFromTable(username, 'users', 'name')
     if user is None or not check_password_hash(str(user.password), password):
         return 'Username or password incorrect', 401

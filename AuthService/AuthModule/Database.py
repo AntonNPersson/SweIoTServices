@@ -5,7 +5,7 @@ def GetObjectFromTable(value, table, column):
         # Get all rows from the specified table and column
         theTable = session.query(GetModel(table)).filter_by(**{column: value}).first()
         # Check if an error occurred during retrieval
-        if theTable is None:
+        if theTable is None or theTable is str:
             print('Error: No table exist with provided values')
             return None, 404
         # If no error, query the row that matches the provided value

@@ -34,6 +34,9 @@ def userLookupCallback(jwtHeader, jwtData):
 # https://localhost:5000/login
 @https.route(loginName, methods=["POST"])
 def login():
+    content = request.content_type
+    if content != 'application/json':
+        return 'Content type must be application/json', 400
     data = request.get_json()
 
     username = data.get("name")

@@ -1,5 +1,5 @@
-from AuthModule import admin_required, loginName, protectName, check_password_hash, create_access_token, secretKey, tokenLocation, tokenExpire, secureCookie, Flask, request, jsonify, JWTManager, jwt_required, current_user
-from AuthModule.Database import GetObjectFromTable
+from AuthModule import  admin_required, loginName, protectName, check_password_hash, create_access_token, secretKey, tokenLocation, tokenExpire, secureCookie, Flask, request, jsonify, JWTManager, jwt_required, current_user
+from AuthModule.Database import GetObjectFromTable, GetPasswordFromUsername
 import os
 
 dir_path = '/home/ubuntu/config/'
@@ -36,10 +36,11 @@ def userLookupCallback(jwtHeader, jwtData):
 def login():
     username = request.form.get("name", None)
     password = request.form.get("password", None)
-    userRow = GetObjectFromTable(username, 'users', 'name')
-    if userRow is None or not check_password_hash(userRow.password, password):
+    userPass = GetPasswordFromUsername(username)
+    userId = GetObjectFromTable(username, 'users', 'id')
+    if userPass is None or not check_password_hash(userPass, password):
         return 'Username or password incorrect', 401
-    accessToken = create_access_token(identity=userRow)
+    accessToken = create_access_token(identity=userId)
     return jsonify(jwt=accessToken), 200
 # Returns json pair - jwt: access token
 

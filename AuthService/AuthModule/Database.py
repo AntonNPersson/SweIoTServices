@@ -14,3 +14,16 @@ def GetObjectFromTable(value, table, column):
         else:
             return theTable
     return executeQuery(queryFunc, value, table, column)
+
+def GetPasswordFromUsername(username):
+    def queryFunc(session, base, username):
+        # Query the database for the user with the provided username
+        user = session.query(GetModel('users')).filter_by(username=username).first()
+        # Check if an error occurred during retrieval
+        if user is None:
+            print('Error: No user exist with provided username')
+            return None, 404
+        # If no error, return the user's password
+        else:
+            return user.password
+    return executeQuery(queryFunc, username)

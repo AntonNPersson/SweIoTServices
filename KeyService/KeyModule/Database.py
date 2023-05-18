@@ -1,5 +1,6 @@
 from KeyModule import GetKeys, executeQuery, Devices
 from .crypto import HashToPem, PemToHash
+import json
 
 def GetPrivateKeyFromID(id):
     def queryFunc(session, base, id):
@@ -14,42 +15,56 @@ def GetPrivateKeyFromID(id):
     
 def GetPublicKeyFromID(id):
     def queryFunc(session, base, id):
-        # Query the keys table to get the key with the specified device_id
-        Key = session.query(GetKeys(base)).filter_by(device_id=id).first()
-        # Print a success message to indicate that the key was found
-        if(Key is None):
-            raise ValueError("No key found with device ID: " + id)
-        print('Success')
-        # Return the public key as a PEM-encoded string
-        return HashToPem(Key.publickey, 'RSA Public Key')
+        try:
+            # Query the keys table to get the key with the specified device_id
+            Key = session.query(GetKeys(base)).filter_by(device_id=id).first()
+            # Raise an exception if no key is found
+            if Key is None:
+                raise ValueError("No key found with device ID: " + id)
+            print('Success')
+            # Return the public key as a PEM-encoded string
+            private_key = HashToPem(Key.privatekey, 'RSA Private Key')
+            response = {"private_key": private_key}
+            return json.dumps(response)
+        except Exception:
+            return None, 404
     return executeQuery(queryFunc, id)
+
 
 
 def AddKeyPairFromDevice(privateKey, publicKey, deviceId):
     def queryFunc(session, base, privateKey, publicKey, deviceId):
-        # Validate inputs
-        if not privateKey:
-            raise ValueError("Private key is empty")
-        if not publicKey:
-            raise ValueError("Public key is empty")
-        if not deviceId:
-            raise ValueError("Device ID is empty")
-        # Find customerid from devideid (temporary until auth working)
-        device = session.query(Devices(base)).filter_by(id=deviceId).first()
-        if not device:
-            raise ValueError("No device found with device ID: " + deviceId) 
-        customerId = device.customer_id
-        # Insert keys into database
-        keysTable = base.metadata.tables.get('public.rsakeys')
-        existingKey = session.query(keysTable).filter_by(device_id=deviceId).first()
-        if existingKey:
-            raise ValueError("Key pair already exist for device with ID: " + deviceId)
-        newKeys = keysTable.insert().values(privatekey=privateKey, publickey=publicKey, device_id=deviceId, customer_id=customerId)
-        session.execute(newKeys)
-        session.commit()
-        print('Key pair added successfully')
-        return 'Key pair added successfully'
+        try:
+            # Validate inputs
+            if not privateKey:
+                raise ValueError("Private key is empty")
+            if not publicKey:
+                raise ValueError("Public key is empty")
+            if not deviceId:
+                raise ValueError("Device ID is empty")
+
+            # Find customerid from deviceid (temporary until auth working)
+            device = session.query(Devices(base)).filter_by(id=deviceId).first()
+            if not device:
+                raise ValueError("No device found with device ID: " + deviceId)
+            customerId = device.customer_id
+
+            # Insert keys into database
+            keysTable = base.metadata.tables.get('public.rsakeys')
+            existingKey = session.query(keysTable).filter_by(device_id=deviceId).first()
+            if existingKey:
+                raise ValueError("Key pair already exists for device with ID: " + deviceId)
+
+            newKeys = keysTable.insert().values(privatekey=privateKey, publickey=publicKey, device_id=deviceId,
+                                                customer_id=customerId)
+            session.execute(newKeys)
+            session.commit()
+            print('Key pair added successfully')
+            return 'Key pair added successfully'
+        except Exception:
+            return None, 404
     return executeQuery(queryFunc, privateKey, publicKey, deviceId)
+
 
 def AddKeyPairFromMac(privateKey, publicKey, mac):
     def queryFunc(session, base, privateKey, publicKey, mac):

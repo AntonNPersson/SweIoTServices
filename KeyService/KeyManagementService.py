@@ -22,7 +22,11 @@ jwt = JWTManager(https)
 def GenerateKeysMain(user_id, device_id):
     private_Key, public_Key = RSAKeyGenerator()
     print(public_Key, private_Key)
-    return AddKeyPairFromDevice(private_Key, public_Key, device_id), 200
+    keyPair = AddKeyPairFromDevice(private_Key, public_Key, device_id)
+    if keyPair is None:
+        return 'Failed to generate key-pair for device:: ' + device_id, 401
+    else:
+        return AddKeyPairFromDevice(private_Key, public_Key, device_id), 200
 
 # need to add verification if the device belongs to user with jwt token
 # curl -X GET http://yourdomain:5000/users/1234/devices/5678/private
@@ -38,7 +42,11 @@ def GetPrKeyMain(user_id, device_id):
 @jwt_required()
 @device_ownership_required
 def GetPuKeyMain(user_id, device_id):
-    return GetPublicKeyFromID(device_id), 200
+    publicKey = GetPublicKeyFromID(device_id)
+    if publicKey is None:
+        return 'No public key found for device with ID: ' + device_id, 404
+    else :
+        return GetPublicKeyFromID(device_id), 200
 
 # curl -X POST -H "Content-Type: application/json" http://yourdomain:5000/users/1234/devices/5678/sign    
 # Verify ownership, sign message with private key in database, hash the message and then return hashed message
@@ -50,9 +58,11 @@ def SignMessageMain(user_id, device_id):
     if(data):
         privateKey = GetPrivateKeyFromID(device_id)
         print('Task succeeded')
-        return SignWithPrivateKey(privateKey, data), 200
+        message = SignWithPrivateKey(privateKey, data)
+        response = {"signed_message": message}
+        return response, 200
     else:
-        return 'Task failed'
+        return 'Task failed', 401
     
 # Verify ownership, sign message with private key in database, hash the message and then return hashed message. Split in 62 bytes messages
 @https.route(splitSigningName, methods=['POST'])
@@ -65,7 +75,7 @@ def SplitSignMessageMain(device_id):
         print('Task succeeded')
         return splitMessage, 200
     else:
-        return 'Task failed'
+        return 'Task failed', 401
 
 if __name__ == "__main__":
     https.run(port=5002, host='0.0.0.0')

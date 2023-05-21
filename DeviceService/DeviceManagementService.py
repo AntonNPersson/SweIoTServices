@@ -2,9 +2,17 @@ import sqlalchemy
 from DeviceModule import ownsDeviceName, GetFromTable, jsonify, get_jwt_identity, jwt_required, JWTManager, Flask, lookUpAllName, GetAllObjectsInModel, GetSpecificFromColumnInTable
 import os, logging
 
+dir_path = '/home/ubuntu/config/'
+filename = 'jwt'
+file_path = os.path.join(dir_path, filename)
+
+with open(file_path, 'r') as f:
+    # Write the connection string to the file
+    first_line = f.readline()
+
 app = Flask(__name__)
 jwt = JWTManager(app)
-app.config["JWT_SECRET_KEY"] = '3'
+app.config["JWT_SECRET_KEY"] = first_line
 logging.basicConfig()
 logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
 
@@ -28,18 +36,13 @@ def lookUp(user_id):
 @app.route(ownsDeviceName, methods=['GET'])
 @jwt_required()
 def ownsDevice(user_id, device_id):
-    userid = get_jwt_identity()
-    if userid != user_id:
-        return 'Currently logged in to user: ' + userid + ' and not user: ' + user_id, 401
     customer = GetSpecificFromColumnInTable(user_id, 'customer_id', 'users')
     if customer is None:
         return 'No customer found', 404
-    device = GetFromTable('devices', device_id)
-    if device is None:
-        return 'No device found', 404
-    if device.__dict__['customer_id'] != customer:
-        return False, 401
-    return True, 200
+    device = GetSpecificFromColumnInTable(device_id, 'customer_id', 'devices')
+    if device is None or device != customer:
+        return str(False), 404
+    return str(True), 200
 
 
 if __name__ == '__main__':

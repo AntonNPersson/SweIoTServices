@@ -1,7 +1,7 @@
 from KeyModule.Database import AddKeyPairFromDevice, GetPrivateKeyFromID, GetPublicKeyFromID
 from KeyModule.crypto import RSAKeyGenerator, SignWithPrivateKey
 import os
-from KeyModule import device_ownership_required, more_itertools, Flask, jwt_required, JWTManager, CheckContentType, generatorName, signingName, splitSigningName, getPrName, getPuName
+from KeyModule import admin_required, device_ownership_required, more_itertools, Flask, jwt_required, JWTManager, CheckContentType, generatorName, signingName, splitSigningName, getPrName, getPuName
 
 dir_path = '/home/ubuntu/config/'
 filename = 'jwt'
@@ -32,6 +32,7 @@ def GenerateKeysMain(user_id, device_id):
 # curl -X GET http://yourdomain:5000/users/1234/devices/5678/private
 @https.route(getPrName, methods=['GET'])
 @jwt_required()
+@admin_required()
 @device_ownership_required
 def GetPrKeyMain(user_id, device_id):
     return GetPrivateKeyFromID(device_id), 200
@@ -45,8 +46,8 @@ def GetPuKeyMain(user_id, device_id):
     publicKey = GetPublicKeyFromID(device_id)
     if publicKey is None:
         return 'No public key found for device with ID: ' + device_id, 404
-    else :
-        return GetPublicKeyFromID(device_id), 200
+    else:
+        return publicKey, 200        
 
 # curl -X POST -H "Content-Type: application/json" http://yourdomain:5000/users/1234/devices/5678/sign    
 # Verify ownership, sign message with private key in database, hash the message and then return hashed message
@@ -57,26 +58,15 @@ def SignMessageMain(user_id, device_id):
     data = CheckContentType()
     if(data):
         privateKey = GetPrivateKeyFromID(device_id)
-        print('Task succeeded')
+        if(privateKey is None):
+            return 'No private key found for device with ID: ' + device_id, 404
         message = SignWithPrivateKey(privateKey, data)
+        if(message is None):
+            return 'Failed to sign message', 400
         response = {"signed_message": message}
         return response, 200
     else:
-        return 'Task failed', 401
-    
-# Verify ownership, sign message with private key in database, hash the message and then return hashed message. Split in 62 bytes messages
-@https.route(splitSigningName, methods=['POST'])
-def SplitSignMessageMain(device_id):
-    data = CheckContentType()
-    if(data):
-        privateKey = GetPrivateKeyFromID(device_id)
-        message = SignWithPrivateKey(privateKey, data)
-        splitMessage = list(more_itertools.chunked(message.encode(), 62))
-        print('Task succeeded')
-        return splitMessage, 200
-    else:
-        return 'Task failed', 401
-
+        return 'Wrong Content type', 400
 if __name__ == "__main__":
     https.run(port=5002, host='0.0.0.0')
     

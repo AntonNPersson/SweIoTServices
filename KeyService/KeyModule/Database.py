@@ -6,8 +6,8 @@ def GetPrivateKeyFromID(id):
     def queryFunc(session, base, id):
         # Query the database for the private key associated with the provided ID
         Key = session.query(GetKeys(base)).filter_by(device_id=id).first()
-        if(Key is None):
-            raise ValueError("No key found with device ID: " + id)
+        if Key is None:
+            return None, 'No key found with device ID: ' + id
         print('Success')
         # Return the private key
         return Key.privatekey
@@ -20,7 +20,7 @@ def GetPublicKeyFromID(id):
             Key = session.query(GetKeys(base)).filter_by(device_id=id).first()
             # Raise an exception if no key is found
             if Key is None:
-                raise ValueError("No key found with device ID: " + id)
+                return None, 'No key found with device ID: ' + id
             print('Success')
             # Return the public key as a PEM-encoded string
             private_key = HashToPem(Key.privatekey, 'RSA Private Key')
@@ -37,23 +37,23 @@ def AddKeyPairFromDevice(privateKey, publicKey, deviceId):
         try:
             # Validate inputs
             if not privateKey:
-                raise ValueError("Private key is empty")
+                return None, "Private key is empty"
             if not publicKey:
-                raise ValueError("Public key is empty")
+                return None, "Public key is empty"
             if not deviceId:
-                raise ValueError("Device ID is empty")
+                return None, "Device ID is empty"
 
             # Find customerid from deviceid (temporary until auth working)
             device = session.query(Devices(base)).filter_by(id=deviceId).first()
             if not device:
-                raise ValueError("No device found with device ID: " + deviceId)
+                return None, "No device found with device ID: " + deviceId
             customerId = device.customer_id
 
             # Insert keys into database
             keysTable = base.metadata.tables.get('public.rsakeys')
             existingKey = session.query(keysTable).filter_by(device_id=deviceId).first()
             if existingKey:
-                raise ValueError("Key pair already exists for device with ID: " + deviceId)
+                return None, "Key pair already exists for device with ID: " + deviceId
 
             newKeys = keysTable.insert().values(privatekey=privateKey, publickey=publicKey, device_id=deviceId,
                                                 customer_id=customerId)
@@ -62,7 +62,7 @@ def AddKeyPairFromDevice(privateKey, publicKey, deviceId):
             print('Key pair added successfully')
             return 'Key pair added successfully'
         except Exception:
-            return None, 404
+            return None, 'An error occurred while adding the key pair'
     return executeQuery(queryFunc, privateKey, publicKey, deviceId)
 
 

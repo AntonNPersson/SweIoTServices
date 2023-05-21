@@ -48,12 +48,5 @@ def login():
     return jsonify(jwt=accessToken), 200
 # Returns json pair - jwt: access token
 
-# curl -X GET https://localhost:5000/protected -H "Authorization: Bearer <your_token>"
-@https.route(protectName, methods=["GET"])
-@jwt_required()
-@admin_required
-def protected():
-    return jsonify(id=current_user.id, username=current_user.name)
-
 if __name__ == '__main__':
     https.run(port=5001, host='0.0.0.0')

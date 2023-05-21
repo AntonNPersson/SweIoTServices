@@ -8,7 +8,7 @@ app.config["JWT_SECRET_KEY"] = '3'
 logging.basicConfig()
 logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
 
-@jwt_required
+@jwt_required()
 @app.route(lookUpAllName, methods=['GET'])
 def lookUp(user_id):
     userid = get_jwt_identity()
@@ -25,7 +25,7 @@ def lookUp(user_id):
         devicesID.append(device.__dict__['id'])
     return jsonify({'Mac': devicesMac, 'ID': devicesID}), 200
 
-@jwt_required
+@jwt_required()
 @app.route(ownsDeviceName, methods=['GET'])
 def ownsDevice(user_id, device_id):
     userid = get_jwt_identity()

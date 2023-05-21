@@ -44,7 +44,9 @@ def login():
         username = data.get("name")
         password = data.get("password")
         user = GetObjectFromTable(username, 'users', 'name')
-        if user is None or not check_password_hash(str(user.password), password):
+        if user is None:
+            return 'Username or password incorrect', 401 
+        if not check_password_hash(str(user.password), password):
             return 'Username or password incorrect', 401
         accessToken = create_access_token(identity=user)
         return jsonify(jwt=accessToken), 200

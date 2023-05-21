@@ -1,16 +1,18 @@
 from AuthModule import GetModel, executeQuery
+from sqlalchemy.exc import SQLAlchemyError
 
 def GetObjectFromTable(value, table, column):
     def queryFunc(session, base, value, table, column):
         # Get all rows from the specified table and column
         try:
             theTable = session.query(GetModel(table)).filter_by(**{column: value}).first()
-        except Exception:
-            return None, 404
+        except SQLAlchemyError as e:
+            print('Error:', str(e))
+            return None, str(e)
         # Check if an error occurred during retrieval
         if theTable is None or isinstance(theTable, str):
             print('Error: No table exist with provided values')
-            return None, 404
+            return None, 'Error: No table exist with provided values'
         # If no error, query the row that matches the provided value
         else:
             return theTable

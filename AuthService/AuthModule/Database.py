@@ -8,9 +8,9 @@ def GetObjectFromTable(value, table, column):
             theTable = session.query(GetModel(table)).filter_by(**{column: value}).first()
         except SQLAlchemyError as e:
             print('Error:', str(e))
-            return None, str(e)
+            theTable = None
         # Check if an error occurred during retrieval
-        if theTable is None or isinstance(theTable, str):
+        if theTable is None:
             print('Error: No table exist with provided values')
             return None, 'Error: No table exist with provided values'
         # If no error, query the row that matches the provided value

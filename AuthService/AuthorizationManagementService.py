@@ -46,8 +46,10 @@ def login():
         user = GetObjectFromTable(username, 'users', 'name')
         if user is None:
             return 'Username or password incorrect', 401 
-        if not check_password_hash(str(user.password), password):
+
+        if user and not check_password_hash(str(user.password), password):
             return 'Username or password incorrect', 401
+
         accessToken = create_access_token(identity=user)
         return jsonify(jwt=accessToken), 200
     except (SQLAlchemyError, IntegrityError, ValueError, TypeError) as e:

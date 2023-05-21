@@ -12,7 +12,7 @@ def GetObjectFromTable(value, table, column):
         # Check if an error occurred during retrieval
         if theTable is None:
             print('Error: No table exist with provided values')
-            return None, 'Error: No table exist with provided values'
+            return None
         # If no error, query the row that matches the provided value
         else:
             return theTable
@@ -25,7 +25,7 @@ def GetPasswordFromUsername(username):
         # Check if an error occurred during retrieval
         if user is None:
             print('Error: No user exist with provided username')
-            return None, 404
+            return None
         # If no error, return the user's password
         else:
             return user.password

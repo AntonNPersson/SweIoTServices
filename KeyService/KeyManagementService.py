@@ -33,7 +33,7 @@ def GenerateKeysMain(user_id, device_id):
 # curl -X GET http://yourdomain:5000/users/1234/devices/5678/private
 @https.route(getPrName, methods=['GET'])
 @jwt_required()
-@admin_required()
+@admin_required
 @device_ownership_required
 def GetPrKeyMain(user_id, device_id):
     return GetPrivateKeyFromID(device_id), 200

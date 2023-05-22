@@ -20,17 +20,14 @@ jwt = JWTManager(https)
 @https.route(generatorName, methods=['POST'])
 @jwt_required()
 def GenerateKeysMain(user_id, device_id):
-    try:
         private_Key, public_Key = RSAKeyGenerator()
         print(public_Key, private_Key)
+        return AddKeyPairFromDevice(private_Key, public_Key, device_id), 200
         keyPair = AddKeyPairFromDevice(private_Key, public_Key, device_id)
         if keyPair is None:
             return 'Failed to generate key-pair for device:: ' + device_id, 500
         else:
             return AddKeyPairFromDevice(private_Key, public_Key, device_id), 200
-    except Exception as e:
-        https.logger.error(e)
-        return 'Error: Check Logs', 500
 
 # need to add verification if the device belongs to user with jwt token
 # curl -X GET http://yourdomain:5000/users/1234/devices/5678/private

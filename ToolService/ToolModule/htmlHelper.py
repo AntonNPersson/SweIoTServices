@@ -13,7 +13,6 @@ def GetList(name):
         itemsDict = []
         # Iterate through each item and convert it to a dictionary
         try:
-            request.post('https://localhost:5001/users/123/devices/'+ id +'/keys/generate')
             for item in items:
                 itemDict = item.__dict__   # Convert the item to a dictionary
                 itemDict.pop('_sa_instance_state', None)   # Remove the '_sa_instance_state' key from the dictionary

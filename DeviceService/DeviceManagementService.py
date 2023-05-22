@@ -1,4 +1,5 @@
 import sqlalchemy
+from DeviceModule.Database import GetIdFromMac, is_mac_address
 from DeviceModule import ownsDeviceName, GetFromTable, jsonify, get_jwt_identity, jwt_required, JWTManager, Flask, lookUpAllName, GetAllObjectsInModel, GetSpecificFromColumnInTable
 import os, logging
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
@@ -26,7 +27,7 @@ def lookUp(user_id):
             return 'Currently logged in to user: ' + userid + ' and not user: ' + user_id, 401
         customer = GetSpecificFromColumnInTable(userid, 'customer_id', 'users')
         if customer is None:
-            return 'No customer found', 404
+            return 'No customer found', 200
         deviceModels = GetAllObjectsInModel('devices').filter_by(customer_id=customer).all()
         devicesMac = []
         devicesID = []
@@ -42,12 +43,15 @@ def lookUp(user_id):
 @jwt_required()
 def ownsDevice(user_id, device_id):
     try:
-        customer = GetSpecificFromColumnInTable(user_id, 'customer_id', 'users')
+        userid = get_jwt_identity()
+        customer = GetSpecificFromColumnInTable(userid, 'customer_id', 'users')
         if customer is None:
-            return 'No customer found', 404
+            return str(False), 200
+        if is_mac_address(device_id):
+            device_id = GetIdFromMac(device_id)
         device = GetSpecificFromColumnInTable(device_id, 'customer_id', 'devices')
         if device is None or device != customer:
-            return str(False), 404
+            return str(False), 200
         return str(True), 200
     except (SQLAlchemyError, IntegrityError, ValueError, TypeError) as e:
         app.logger.error(e)

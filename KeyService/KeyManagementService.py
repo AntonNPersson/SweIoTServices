@@ -25,7 +25,7 @@ def GenerateKeysMain(user_id, device_id):
         print(public_Key, private_Key)
         keyPair = AddKeyPairFromDevice(private_Key, public_Key, device_id)
         if keyPair is None:
-            return 'Failed to generate key-pair for device:: ' + device_id, 401
+            return 'Failed to generate key-pair for device:: ' + device_id, 500
         else:
             return AddKeyPairFromDevice(private_Key, public_Key, device_id), 200
     except Exception as e:
@@ -50,7 +50,7 @@ def GetPuKeyMain(user_id, device_id):
     try:
         publicKey = GetPublicKeyFromID(device_id)
         if publicKey is None:
-            return 'No public key found for device with ID: ' + device_id, 404
+            return 'No public key found for device with ID: ' + device_id, 200
         else:
             return publicKey, 200
     except Exception as e:
@@ -68,10 +68,10 @@ def SignMessageMain(user_id, device_id):
         if(data):
             privateKey = GetPrivateKeyFromID(device_id)
             if(privateKey is None):
-                return 'No private key found for device with ID: ' + device_id, 404
+                return 'No private key found for device with ID: ' + device_id, 200
             message = SignWithPrivateKey(privateKey, data)
             if(message is None):
-                return 'Failed to sign message', 400
+                return 'Failed to sign message', 200
             response = {"signed_message": message}
             return response, 200
         else:

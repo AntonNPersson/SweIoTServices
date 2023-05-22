@@ -85,7 +85,7 @@ def Insert(object):
     id = values.get('id')
     if id is not None and id == '':
         values.pop('id', None)
-
+    # request.post('https://localhost:5001/users/123/devices/'+ id +'/keys/generate')
     # check if 'password' field is in the values dictionary
     if 'password' in values:
         # replace the plain-text password value with its hashed version

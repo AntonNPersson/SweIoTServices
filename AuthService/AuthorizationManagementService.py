@@ -1,6 +1,7 @@
 from AuthModule import  admin_required, loginName, protectName, check_password_hash, create_access_token, secretKey, tokenLocation, tokenExpire, secureCookie, Flask, request, jsonify, JWTManager, jwt_required, current_user
 from AuthModule.Database import GetObjectFromTable, GetPasswordFromUsername
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from datetime import timedelta
 import os
 
 dir_path = '/home/ubuntu/config/'
@@ -13,9 +14,7 @@ with open(file_path, 'r') as f:
 
 https = Flask(__name__)
 https.config["JWT_SECRET_KEY"] = first_line
-#https.config["JWT_TOKEN_LOCATION"] = tokenLocation
-#https.config["JWT_COOKIE_SECURE"] = secureCookie
-#https.config["JWT_ACCESS_TOKEN_EXPIRES"] = tokenExpire
+https.config["JWT_TOKEN_EXPIRES"] = timedelta(minutes=30)
 jwt = JWTManager(https)
 
 @jwt.user_identity_loader

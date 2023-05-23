@@ -1,16 +1,33 @@
 from ToolModule import JWTManager, json, jsonify, get_remote_address, Limiter, session, check_password_hash, GetModel, GetAllObjectsInModel, render_template, generate_password_hash, Flask, request, redirect, io, csv, GetTable
 from ToolModule.Database import RemoveMultipleFromTable, InsertMultipleToTable, InsertToTable, RemoveFromTable, GetObjectFromTable, UpdateTable, GetRelatedTableFromForeignKey
 from ToolModule.htmlHelper import GetList
-import requests, json
+import requests, json, re, os
 from ToolModule import deviceName, batchName, configName, customerName, firmwareName, keysName, ordersName, producersName, roleName, usersName, index, loginName, csvName, insertName, removeName
+
+dir_path = '/home/ubuntu/config/'
+filename = 'jwt'
+file_path = os.path.join(dir_path, filename)
+
+with open(file_path, 'r') as f:
+    # Write the connection string to the file
+    first_line = f.readline()
 
 https = Flask(__name__)
 jwt = JWTManager(https)
 https.secret_key = 'hej'
 https.config['SESSION_TYPE'] = 'filesystem'
-https.config['SESSION_PERMANENT'] = False
 https.config['SESSION_COOKIE_SECURE'] = True
-https.config['JWT_SECRET_KEY'] = '3'
+https.config['JWT_SECRET_KEY'] = first_line
+
+def is_valid_jwt(token):
+    # JWT token format regular expression
+    jwt_pattern = r'^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$'
+
+    # Check if the token matches the JWT format
+    if re.match(jwt_pattern, token):
+        return True
+    else:
+        return False
 
 @https.route('/administrator/all/<objects>/all/tools/getRelatedTable/<key_type>/<foreign_key>', methods=['GET'])
 def get_foreign_key_table(objects, foreign_key, key_type):
@@ -100,8 +117,7 @@ def login():
             print("Invalid JSON response")
         session['user_id'] = userRow.id
         session['jwt'] = jwt_token
-        print(session['user_id'])
-        print(session['jwt'])
+        print(is_valid_jwt(session['jwt']))
         return redirect(index)
     
     if request.method == 'GET':
@@ -125,7 +141,7 @@ def Insert(object):
     response = None
     print(session['jwt'])
     headers = {
-    'Authorization': 'Bearer ' + session['jwt'],
+    'Authorization': 'Bearer ' + session['jwt'].strip(),
     }
     response = requests.post('http://localhost:5002/users/' + str(session['user_id']) + '/devices/' + str(deviceID) + '/keys/generate', headers=headers)
     print(values)

@@ -2,6 +2,10 @@ from ToolModule import session, GetAllObjectsInModel, GetModel, redirect, render
 from ToolModule import loginName
 from flask import request
 
+def CheckIfLoggedOut():
+    if 'user_id' not in session:
+        return 'Login required', 401
+
 def GetList(name):
     if 'user_id' in session:
         dbsession, base = GetSession()

@@ -1,7 +1,7 @@
-from KeyModule.Database import AddKeyPairFromDevice, GetPrivateKeyFromID, GetPublicKeyFromID
+from KeyModule.Database import AddKeyPairFromDevice, GetPrivateKeyFromID, GetPublicKeyFromID, RemoveKeyPairFromDevice
 from KeyModule.crypto import RSAKeyGenerator, SignWithPrivateKey
 import os
-from KeyModule import admin_required, device_ownership_required, more_itertools, Flask, jwt_required, JWTManager, CheckContentType, generatorName, signingName, splitSigningName, getPrName, getPuName
+from KeyModule import removeKeyPairName, admin_required, device_ownership_required, more_itertools, Flask, jwt_required, JWTManager, CheckContentType, generatorName, signingName, splitSigningName, getPrName, getPuName
 
 dir_path = '/home/ubuntu/config/'
 filename = 'jwt'
@@ -19,6 +19,7 @@ jwt = JWTManager(https)
 # Verify ownership, generate RSA key pair, add to database and then return public key  
 @https.route(generatorName, methods=['POST'])
 @jwt_required()
+@admin_required
 def GenerateKeysMain(user_id, device_id):
         private_Key, public_Key = RSAKeyGenerator()
         print(public_Key, private_Key)
@@ -28,6 +29,12 @@ def GenerateKeysMain(user_id, device_id):
             return 'Failed to generate key-pair for device:: ' + device_id, 500
         else:
             return AddKeyPairFromDevice(private_Key, public_Key, device_id), 200
+        
+@https.route(removeKeyPairName, methods=['POST'])
+@jwt_required()
+@admin_required
+def RemoveKeyPairMain(user_id, device_id):
+    return RemoveKeyPairFromDevice(device_id), 200
 
 # need to add verification if the device belongs to user with jwt token
 # curl -X GET http://yourdomain:5000/users/1234/devices/5678/private

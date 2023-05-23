@@ -137,6 +137,55 @@ def InsertMultipleToTable(table, values):
         return True
     return executeQuery(queryFunc, values)
 
+def InsertToTableWithoutSession(session, base, table, values):
+        # Get table model and columns
+        name = "public." + table
+        tableModel = base.metadata.tables.get(name)
+        # Check if table exists
+        if tableModel is None:
+            return False, 'Error: Table not found'
+        columnsModel = tableModel.columns.keys()
+        newValues = {}
+        tempID = None
+        # Ensure that values are provided
+        if values is None: "Error: No values provided"
+        # Loop through the columns in the table and create a dictionary
+        # with column names and values to insert
+        for column in columnsModel:
+            if column in values:
+                colType = str(tableModel.columns[column].type)
+                colValue = values[column]
+                if colType.startswith('VARCHAR') or colType.startswith('TEXT'):
+                    newValues[column] = colValue
+                elif colType.startswith('INTEGER'):
+                    newValues[column] = int(colValue)
+                elif colType.startswith('BOOLEAN'):
+                    newValues[column] = colValue.lower() == 'true'
+                elif colType.startswith('NUMERIC'):
+                    newValues[column] = float(colValue)
+                elif colType.startswith('DATE'):
+                    newValues[column] = datetime.strptime(colValue, '%Y-%m-%d').date()
+                elif colType.startswith('TIME'):
+                    newValues[column] = datetime.strptime(colValue, '%H:%M:%S').time()
+                elif colType.startswith('TIMESTAMP'):
+                    newValues[column] = datetime.strptime(colValue, '%Y-%m-%d %H:%M:%S')
+                elif colType.startswith('JSON'):
+                    newValues[column] = json.loads(colValue)
+                elif colType.startswith('ARRAY'):
+                    newValues[column] = colValue.split(',')
+            elif column == 'id':
+                # Generate a new id value using the default sequence
+                query = text(f"SELECT nextval('{table}_id_seq')")
+                result = session.execute(query)
+                newValues[column] = result.scalar()
+                tempID = newValues[column]
+            else:
+                newValues[column] = None  # Use default value for missing columns
+        # Insert the new object into the table
+        newObject = tableModel.insert().values(**newValues)
+        session.execute(newObject)
+        # Return success
+        return tempID
 
 
 def RemoveFromTable(table, id):

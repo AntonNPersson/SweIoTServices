@@ -1,23 +1,23 @@
-from ToolModule import JWTManager, json, jsonify, get_remote_address, Limiter, session, check_password_hash, GetModel, GetAllObjectsInModel, render_template, generate_password_hash, Flask, request, redirect, io, csv, GetTable
-from ToolModule.Database import RemoveMultipleFromTable, InsertMultipleToTable, InsertToTable, RemoveFromTable, GetObjectFromTable, UpdateTable, GetRelatedTableFromForeignKey
-from ToolModule.htmlHelper import GetList
+from ToolModule import GetSession, JWTManager, json, jsonify, get_remote_address, Limiter, session, check_password_hash, GetModel, GetAllObjectsInModel, render_template, generate_password_hash, Flask, request, redirect, io, csv, GetTable
+from ToolModule.Database import RemoveMultipleFromTable, InsertMultipleToTable, InsertToTable, RemoveFromTable, GetObjectFromTable, UpdateTable, GetRelatedTableFromForeignKey, InsertToTableWithoutSession
+from ToolModule.htmlHelper import GetList, CheckIfLoggedOut
 import requests, json, re, os
 from ToolModule import deviceName, batchName, configName, customerName, firmwareName, keysName, ordersName, producersName, roleName, usersName, index, loginName, csvName, insertName, removeName
 
-dir_path = '/home/ubuntu/config/'
+""" dir_path = '/home/ubuntu/config/'
 filename = 'jwt'
 file_path = os.path.join(dir_path, filename)
 
 with open(file_path, 'r') as f:
     # Write the connection string to the file
-    first_line = f.readline()
+    first_line = f.readline() """
 
 https = Flask(__name__)
 jwt = JWTManager(https)
 https.secret_key = 'hej'
 https.config['SESSION_TYPE'] = 'filesystem'
 https.config['SESSION_COOKIE_SECURE'] = True
-https.config['JWT_SECRET_KEY'] = first_line
+https.config['JWT_SECRET_KEY'] = '3'
 
 def is_valid_jwt(token):
     # JWT token format regular expression
@@ -126,6 +126,7 @@ def login():
 
 @https.route(insertName, methods=['POST'])
 def Insert(object):
+    CheckIfLoggedOut()
     # retrieve form data from the HTTP request
     values = dict(request.form)
     id = values.get('id')
@@ -140,19 +141,25 @@ def Insert(object):
     # print the form data to the console
     response = None
     print(session['jwt'])
-    headers = {
-    'Authorization': 'Bearer ' + session['jwt'].strip(),
-    }
-    response = requests.post('http://localhost:5002/users/' + str(session['user_id']) + '/devices/' + str(deviceID) + '/keys/generate', headers=headers)
+    if 'devices' in request.url:
+        headers = {
+        'Authorization': 'Bearer ' + session['jwt'].strip(),
+        }
+        response = requests.post('http://localhost:5002/users/' + str(session['user_id']) + '/devices/' + str(deviceID) + '/keys/generate', headers=headers)
+    else:
+        response = 200
     print(values)
     # return a list of all records in the specified table
-    if response is not None and response.status_code == 200:
+    if response == 200 or response.status_code == 200:
         return redirect('/administrator/all/'+ object +'/all/tools/manager'), 200
     else:
         return 'Error: ' + response.text, 500
 
 @https.route(removeName, methods=['POST'])
 def Remove(object):
+    CheckIfLoggedOut()
+    if 'checkedIds[]' not in request.form:
+        return 'Error: No items selected', 500
     # Print the form data received in the request
     print(request.form)
     # Get a list of checkedIds from the form data
@@ -166,6 +173,7 @@ def Remove(object):
 
 @https.route(csvName, methods=['POST'])
 def Upload():
+    CheckIfLoggedOut()
     # Try to get csvFile from name and tableName from form
     try:
         csvFile = request.files['csvFile']

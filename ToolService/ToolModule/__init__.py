@@ -10,7 +10,7 @@ from datetime import datetime
 import csv, io
 
 deviceName = '/administrator/all/devices/all/tools/manager'
-batchName = '/administrator/all/batches/all/tools/manager'
+batchName = '/administrator/all/batch/all/tools/manager'
 configName = '/administrator/all/configs/all/tools/manager'
 customerName = '/administrator/all/customers/all/tools/manager'
 firmwareName = '/administrator/all/firmwares/all/tools/manager'

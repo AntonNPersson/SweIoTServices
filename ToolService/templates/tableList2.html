@@ -277,7 +277,7 @@
                 </button>
                 <!--Button that removes selected objects from database-->
                 <button class="editButton" id="editButton" type="submit" onclick="showConfirmation()">
-                  <span class="edit-button-text">Edit</span>
+                  <span class="edit-button-text">WIP (Edit)</span>
                 </button>
                 <button class="save-button" id="save-button" type="submit" onclick="showConfirmation()">
                     <span class="save-button-text">Save</span>
@@ -301,29 +301,55 @@
                 <input type="text" onkeyup="filterList()" id="searchInput" name="searchInput">
               </div>
             
-              <!--Popup window with insert forms-->
-              <div class="popup", id="popup">
-                <div class="popup-content">
-                    <div id="errorDiv">
-                        <h1>Add {{orders.__table__.name}}</h1>
-                        <form method="POST" action="/administrator/all/{{ orders.__table__.name.replace('public.', '') }}/all/tools/insert">
-                          {% for column in orders.__table__.columns %}
-                            <label for="{{ column.name }}">{{ column.name }}:</label>
-                            <input type="text" name="{{ column.name }}" id="{{ column.name }}"><br>
-                          {% endfor %}
-                            <button type="submit" id="addButton">Submit</button>
-                        </form>
-                    </div>
-                    <div id="uploadDiv">
-                        <form method="POST" action="/administrator/tools/csv" enctype="multipart/form-data">
-                          <label for="csvFile">CSV File (,):</label>
-                          <input type="file" name="csvFile">
-                          <input type="hidden" name="tableName" value="{{ orders.__table__.name.replace('public.', '') }}">
-                          <button type="submit", id="uploadButton">Submit</button>
-                        </form>
-                      </div>
-                </div>
-              </div>
+<!-- Popup window with insert forms -->
+<div class="popup" id="popup">
+  <div class="popup-content">
+    <div id="errorDiv">
+      <h1>Add {{ orders.__table__.name }}</h1>
+      <form method="POST" action="/administrator/all/{{ orders.__table__.name.replace('public.', '') }}/all/tools/insert">
+        {% for column in orders.__table__.columns %}
+          <label for="{{ column.name }}">{{ column.name }}:</label>
+          {% if column.type.__class__.__name__ == 'INTEGER' %}
+            <input type="number" name="{{ column.name }}" id="{{ column.name }}" placeholder="Enter number"><br>
+          {% elif column.type.__class__.__name__ == 'BOOLEAN' %}
+            <input type="checkbox" name="{{ column.name }}" id="{{ column.name }}" placeholder="Enter True or False"><br>
+          {% elif column.type.__class__.__name__ == 'ARRAY' %}
+            <input type="text" name="{{ column.name }}" id="{{ column.name }}" placeholder="Enter comma-separated values"><br>
+          {% elif column.type.__class__.__name__ == 'JSON' %}
+            <input type="text" name="{{ column.name }}" id="{{ column.name }}" placeholder="Enter JSON"><br>
+          {% elif column.type.__class__.__name__ == 'DATETIME' %}
+            <input type="datetime-local" name="{{ column.name }}" id="{{ column.name }}"><br>
+          {% elif column.type.__class__.__name__ == 'DATE' %}
+            <input type="date" name="{{ column.name }}" id="{{ column.name }}"><br>
+          {% elif column.type.__class__.__name__ == 'TIME' %}
+            <input type="time" name="{{ column.name }}" id="{{ column.name }}"><br>
+          {% elif column.type.__class__.__name__ == 'FLOAT' %}
+            <input type="number" name="{{ column.name }}" id="{{ column.name }}" step="any"><br>
+          {% elif column.type.__class__.__name__ == 'NUMERIC' %}
+            <input type="number" name="{{ column.name }}" id="{{ column.name }}" step="any"><br>
+          {% elif column.type.__class__.__name__ == 'VARCHAR' %}
+            <input type="text" name="{{ column.name }}" id="{{ column.name }}" placeholder="Enter text"><br>
+          {% elif column.type.__class__.__name__ == 'TEXT' %}
+            <input type="text" name="{{ column.name }}" id="{{ column.name }}" placeholder="Enter text"><br>
+          {% else %}
+            <!-- Handle other datatypes or provide a default input field -->
+            <input type="text" name="{{ column.name }}" id="{{ column.name }}"><br>
+          {% endif %}
+        {% endfor %}
+        <button type="submit" id="addButton">Submit</button>
+      </form>
+    </div>
+    <div id="uploadDiv">
+      <form method="POST" action="/administrator/tools/csv" enctype="multipart/form-data">
+        <label for="csvFile">CSV File (,):</label>
+        <input type="file" name="csvFile">
+        <input type="hidden" name="tableName" value="{{ orders.__table__.name.replace('public.', '') }}">
+        <button type="submit" id="uploadButton">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
+
             
               <table id="itemList">
                 <thead>
@@ -338,7 +364,7 @@
                   {% for item in items %}
                     <tr>
                       {% for column in orders.__table__.columns %}
-                        <td data-column="{{ column.name }}" class="editable-cell" onclick="window.location.href='/administrator/all/{{ orders.__table__.name }}/all/tools/getRelatedTable/{{column.name}}/{{ item[column.name] }}'">{{ item[column.name] }}</td>
+                        <td data-column="{{ column.name }}" class="editable-cell" >{{ item[column.name] }}</td>
                       {% endfor %}
                       <td><input type="checkbox" name="selectedItems[]" value="{{ item.id }}"></td>
                     </tr>
@@ -361,17 +387,14 @@ editButton.addEventListener('click', function() {
       const cells = row.querySelectorAll('.editable-cell');
       cells.forEach(function(cell) {
         cell.contentEditable = "true";
-        cell.innerHTML = `<input type="text" value="${cell.innerHTML}">`;
-        const input = cell.querySelector('input');
-        input.addEventListener('input', function() {
-        cell.innerHTML = input.value;
-      });
+        cell.style.backgroundColor = "#f8f9faa5"; // Set background color to indicate edit mode
       });
     });
   } else if (editButton.textContent == "Exit") {
     location.reload();
   };
 });
+
                 // Filter by search input
               function filterList() {
                   var input, filter, table, tr, td, i, j, text;
@@ -409,8 +432,7 @@ editButton.addEventListener('click', function() {
               }
             });
 
-// Attach click event listener to save button
-$('#save-button').click(function() {
+            $('#save-button').click(function() {
   // Display confirmation dialog
   var confirmed = confirm('Are you sure you want to save the changes?');
   if (confirmed) {
@@ -419,36 +441,49 @@ $('#save-button').click(function() {
     $('#itemList tbody tr').each(function() {
       var row = $(this);
       var updatedRow = {};
-      // Loop through each cell in the row and collect the values
+      var isRowUpdated = false; // Track if the row has any updated values
+      // Loop through each cell in the row and collect the updated values
       row.find('td').each(function() {
         var cell = $(this);
-        updatedRow[cell.data('column')] = cell.text();
+        var column = cell.data('column');
+        var originalValue = cell.data('original-value');
+        var updatedValue = cell.text();
+        if (originalValue !== updatedValue) {
+          updatedRow[column] = updatedValue;
+          isRowUpdated = true;
+        }
       });
-      updatedValues.push(updatedRow);
-    });
-    // Send AJAX request to update database
-    $.ajax({
-      url: "/administrator/all/{{ orders.__table__.name.replace('public.', '') }}/all/tools/update",
-      type: 'POST',
-      data: JSON.stringify(updatedValues),
-      contentType: 'application/json',
-      success: function(response) {
-        if (response.error){
-          alert('Failed to save changes: ' + response.error)
-        }
-        else{
-          alert('Changes saved successfully.');
-        }
-      },
-      error: function(xhr, status, error) {
-        // Handle error response
-        var parser = new DOMParser();
-        var errorMsg = xhr.status + ": " + parser.parseFromString(xhr.responseText, "text/html").querySelector("p").textContent;
-        alert('Failed to save changes: ' + errorMsg);
+      if (isRowUpdated) {
+        updatedValues.push(updatedRow);
       }
     });
+    // Send AJAX request to update database
+    if (updatedValues.length > 0) {
+      $.ajax({
+        url: "/administrator/all/{{ orders.__table__.name.replace('public.', '') }}/all/tools/update",
+        type: 'POST',
+        data: JSON.stringify(updatedValues),
+        contentType: 'application/json',
+        success: function(response) {
+          if (response.error) {
+            alert('Failed to save changes: ' + response.error);
+          } else {
+            alert('Changes saved successfully.');
+          }
+        },
+        error: function(xhr, status, error) {
+          // Handle error response
+          var parser = new DOMParser();
+          var errorMsg = xhr.status + ": " + parser.parseFromString(xhr.responseText, "text/html").querySelector("p").textContent;
+          alert('Failed to save changes: ' + errorMsg);
+        }
+      });
+    } else {
+      alert('No changes to save.');
+    }
   }
 });
+
 
 
 

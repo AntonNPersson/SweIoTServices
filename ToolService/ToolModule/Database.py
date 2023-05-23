@@ -42,6 +42,7 @@ def InsertToTable(table, values):
             return False, 'Error: Table not found'
         columnsModel = tableModel.columns.keys()
         newValues = {}
+        tempID = None
         # Ensure that values are provided
         if values is None: "Error: No values provided"
         # Loop through the columns in the table and create a dictionary
@@ -73,12 +74,65 @@ def InsertToTable(table, values):
                 query = text(f"SELECT nextval('{table}_id_seq')")
                 result = session.execute(query)
                 newValues[column] = result.scalar()
+                tempID = newValues[column]
             else:
                 newValues[column] = None  # Use default value for missing columns
         # Insert the new object into the table
         newObject = tableModel.insert().values(**newValues)
         session.execute(newObject)
         session.commit()
+        # Return success
+        return tempID
+    return executeQuery(queryFunc, values)
+
+def InsertMultipleToTable(table, values):
+    def queryFunc(session, base, values):
+        # Get table model and columns
+        name = "public." + table
+        tableModel = base.metadata.tables.get(name)
+        # Check if table exists
+        if tableModel is None:
+            return False, 'Error: Table not found'
+        columnsModel = tableModel.columns.keys()
+        # Ensure that values are provided
+        if values is None: "Error: No values provided"
+        # Loop through the columns in the table and create a dictionary
+        # with column names and values to insert
+        for value in values:
+            newValues = {}
+            for column in columnsModel:
+                if column in value:
+                    colType = str(tableModel.columns[column].type)
+                    colValue = value[column]
+                    if colType.startswith('VARCHAR') or colType.startswith('TEXT'):
+                        newValues[column] = colValue
+                    elif colType.startswith('INTEGER'):
+                        newValues[column] = int(colValue)
+                    elif colType.startswith('BOOLEAN'):
+                        newValues[column] = colValue.lower() == 'true'
+                    elif colType.startswith('NUMERIC'):
+                        newValues[column] = float(colValue)
+                    elif colType.startswith('DATE'):
+                        newValues[column] = datetime.strptime(colValue, '%Y-%m-%d').date()
+                    elif colType.startswith('TIME'):
+                        newValues[column] = datetime.strptime(colValue, '%H:%M:%S').time()
+                    elif colType.startswith('TIMESTAMP'):
+                        newValues[column] = datetime.strptime(colValue, '%Y-%m-%d %H:%M:%S')
+                    elif colType.startswith('JSON'):
+                        newValues[column] = json.loads(colValue)
+                    elif colType.startswith('ARRAY'):
+                        newValues[column] = colValue.split(',')
+                elif column == 'id':
+                    # Generate a new id value using the default sequence
+                    query = text(f"SELECT nextval('{table}_id_seq')")
+                    result = session.execute(query)
+                    newValues[column] = result.scalar()
+                else:
+                    newValues[column] = None  # Use default value for missing columns
+            # Insert the new object into the table
+            newObject = tableModel.insert().values(**newValues)
+            session.execute(newObject)
+            session.commit()
         # Return success
         return True
     return executeQuery(queryFunc, values)
@@ -107,13 +161,36 @@ def RemoveFromTable(table, id):
             return 400, str(e)
     return executeQuery(queryFunc, table, id)
 
+def RemoveMultipleFromTable(table, ids):
+    def queryFunc(session, base, table, ids):
+        # Get the table model from the metadata based on the provided table name
+        name = "public." + table
+        tableModel = base.metadata.tables.get(name)
+        # Check if the table exists in the metadata
+        if tableModel is None:
+            return 404, 'Error: Table not found'
+        # Ensure that an ID is provided
+        if not ids:
+            return 404, "Error: No IDs provided"
+        # Create a query to remove a row with the given ID from the table
+        for id in ids:
+            query = tableModel.delete().where(tableModel.c.id == id)
+            try:
+                # Execute the query and commit the transaction
+                session.execute(query)
+                session.commit()
+            except Exception as e:
+                return 400, str(e)
+        return True, None
+    return executeQuery(queryFunc, table, ids)
+
 
 def GetObjectFromTable(value, table, column):
     def queryFunc(session, base, value, table, column):
         # Check if value is provided
         assert value is not None, "Error: No value provided"
         # Get all rows from the specified table and column
-        theTable = session.query(GetModel(table)).filter_by(**{column: value}).first()
+        theTable = session.query(GetModel(table, session=session, Base=base)).filter_by(**{column: value}).first()
         # Check if an error occurred during retrieval
         if theTable is None:
             print('Error: No table exist with provided values')
@@ -138,7 +215,7 @@ def UpdateTable(table_name):
     if not item_ids:
         return abort(404, "No items to update.")
 
-    theTable = GetModel(table)
+    theTable = GetModel(table, session=session, Base=base)
     name = "public." + table
     tableModel = base.metadata.tables.get(name)
     columnsModel = tableModel.columns.keys()
@@ -193,15 +270,15 @@ def UpdateTable(table_name):
         session.rollback()
         error_message = str(e.orig)
         error_explanation = error_message.split("DETAIL:")[0]
-        return abort(400, error_explanation)
+        return 400, error_explanation
     except ValueError as e:
         session.rollback()
-        return abort(400, f"Invalid format: '{key}'")
+        return 400, f"Invalid format: '{key}'"
     except ProgrammingError as e:
-        return abort(400, f"Invalid format: '{key}'")
+        return 400, f"Invalid format: '{key}'"
     except Exception as e:
         session.rollback()
-        return abort(400, f"Invalid format: '{key}'")
+        return 400, f"Invalid format: '{key}'"
     else:
         return jsonify({"message": "Table values updated successfully."}), 200
 

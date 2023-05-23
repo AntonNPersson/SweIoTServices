@@ -47,6 +47,24 @@ def RemoveKeyPairFromDevice(deviceId):
             return 'An error occurred while deleting the key'
     return executeQuery(queryFunc, deviceId)
 
+def RemoveMultipleKeyPairFromDevice(deviceIds):
+    def queryFunc(session, base, deviceIds):
+        try:
+            # Query the keys table to get the key with the specified device_id
+            for deviceId in deviceIds:
+                Key = session.query(GetKeys(base)).filter_by(device_id=deviceId).first()
+                # Raise an exception if no key is found
+                if Key is None:
+                    return None, 'No key found with device ID: ' + deviceId
+                # Delete the key from the database
+                session.delete(Key)
+            session.commit()
+            print('Key deleted successfully')
+            return 'Key deleted successfully'
+        except Exception:
+            return 'An error occurred while deleting the key'
+    return executeQuery(queryFunc, deviceIds)
+
 def AddKeyPairFromDevice(privateKey, publicKey, deviceId):
     def queryFunc(session, base, privateKey, publicKey, deviceId):
         try:

@@ -1,4 +1,4 @@
-from KeyModule.Database import AddKeyPairFromDevice, GetPrivateKeyFromID, GetPublicKeyFromID, RemoveKeyPairFromDevice
+from KeyModule.Database import AddKeyPairFromDevice, GetPrivateKeyFromID, GetPublicKeyFromID, RemoveKeyPairFromDevice, RemoveMultipleKeyPairFromDevice
 from KeyModule.crypto import RSAKeyGenerator, SignWithPrivateKey
 import os
 from KeyModule import removeKeyPairName, admin_required, device_ownership_required, more_itertools, Flask, jwt_required, JWTManager, CheckContentType, generatorName, signingName, splitSigningName, getPrName, getPuName
@@ -34,7 +34,11 @@ def GenerateKeysMain(user_id, device_id):
 @jwt_required()
 @admin_required
 def RemoveKeyPairMain(user_id, device_id):
-    return RemoveKeyPairFromDevice(device_id), 200
+    data = CheckContentType()
+    if(len(data['deviceIds']) > 1):
+        return RemoveMultipleKeyPairFromDevice(data['deviceIds']), 200
+    else:
+        return RemoveKeyPairFromDevice(device_id), 200
 
 # need to add verification if the device belongs to user with jwt token
 # curl -X GET http://yourdomain:5000/users/1234/devices/5678/private

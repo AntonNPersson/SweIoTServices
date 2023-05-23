@@ -156,8 +156,6 @@ def Insert(object):
 @https.route(removeName, methods=['POST'])
 def Remove(object):
     CheckIfLoggedOut()
-    if 'checkedIds[]' not in request.form:
-        return 'Error: No items selected', 500
     # Print the form data received in the request
     print(request.form)
     # Get a list of checkedIds from the form data

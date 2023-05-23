@@ -162,17 +162,17 @@ def Remove(object):
     values = request.form.getlist('checkedIds[]')
     json_data = json.dumps(values)
     # Print the list of selected values to verify that it is not empty
-    print("Selected values:", values)
-    if 'devices' in request.url:
-        headers = {
-        'Authorization': 'Bearer ' + session['jwt'].strip(),
-        'Content-Type': 'application/json'
-        }
-        payload = {'deviceIds': values}
-        json_data = json.dumps(payload)
-        response = requests.post('http://localhost:5002/users/' + str(session['user_id']) + '/devices/' + str(values[0]) + '/keys/remove', headers=headers, data=json_data)
-        if response.status_code != 200:
-            return 'Error: ' + response.text, 500
+    # print("Selected values:", values)
+    # if 'devices' in request.url:
+    #     headers = {
+    #     'Authorization': 'Bearer ' + session['jwt'].strip(),
+    #     'Content-Type': 'application/json'
+    #     }
+    #     payload = {'deviceIds': values}
+    #     json_data = json.dumps(payload)
+    #     response = requests.post('http://localhost:5002/users/' + str(session['user_id']) + '/devices/' + str(values[0]) + '/keys/remove', headers=headers, data=json_data)
+    #     if response.status_code != 200:
+    #         return 'Error: ' + response.text, 500
     # Loop through the selected values and remove each from the table using the op.RemoveFromTable function
     RemoveMultipleFromTable(object, values)
     # Return a refreshed list of the remaining objects in the table

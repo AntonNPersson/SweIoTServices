@@ -1,5 +1,5 @@
 from KeyModule.Database import AddKeyPairFromDevice, GetPrivateKeyFromID, GetPublicKeyFromID, RemoveKeyPairFromDevice, RemoveMultipleKeyPairFromDevice
-from KeyModule.crypto import RSAKeyGenerator, SignWithPrivateKey
+from KeyModule.crypto import RSAKeyGenerator, SignWithPrivateKey, ECCKeyGenerator
 import os
 from KeyModule import removeKeyPairName, admin_required, device_ownership_required, more_itertools, Flask, jwt_required, JWTManager, CheckContentType, generatorName, signingName, splitSigningName, getPrName, getPuName
 
@@ -21,7 +21,7 @@ jwt = JWTManager(https)
 @jwt_required()
 @admin_required
 def GenerateKeysMain(user_id, device_id):
-        private_Key, public_Key = RSAKeyGenerator()
+        private_Key, public_Key = ECCKeyGenerator()
         print(public_Key, private_Key)
         return AddKeyPairFromDevice(private_Key, public_Key, device_id), 200
         keyPair = AddKeyPairFromDevice(private_Key, public_Key, device_id)

@@ -146,14 +146,12 @@ def Insert(object):
         'Authorization': 'Bearer ' + session['jwt'].strip(),
         }
         response = requests.post('http://localhost:5002/users/' + str(session['user_id']) + '/devices/' + str(deviceID) + '/keys/generate', headers=headers)
-    else:
-        response = 200
+        if response.status_code != 200:
+            return 'Error: ' + response.text, 500
     print(values)
     # return a list of all records in the specified table
-    if response == 200 or response.status_code == 200:
-        return redirect('/administrator/all/'+ object +'/all/tools/manager'), 200
-    else:
-        return 'Error: ' + response.text, 500
+    return redirect('/administrator/all/'+ object +'/all/tools/manager'), 200
+
 
 @https.route(removeName, methods=['POST'])
 def Remove(object):
@@ -166,6 +164,14 @@ def Remove(object):
     values = request.form.getlist('checkedIds[]')
     # Print the list of selected values to verify that it is not empty
     print("Selected values:", values)
+    if 'devices' in request.url:
+        headers = {
+        'Authorization': 'Bearer ' + session['jwt'].strip(),
+        }
+        for value in values:
+            response = requests.post('http://localhost:5002/users/' + str(session['user_id']) + '/devices/' + str(value) + '/keys/remove', headers=headers)
+            if response.status_code != 200:
+                return 'Error: ' + response.text, 500
     # Loop through the selected values and remove each from the table using the op.RemoveFromTable function
     RemoveMultipleFromTable(object, values)
     # Return a refreshed list of the remaining objects in the table

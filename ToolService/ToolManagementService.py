@@ -4,20 +4,20 @@ from ToolModule.htmlHelper import GetList, CheckIfLoggedOut
 import requests, json, re, os
 from ToolModule import deviceName, batchName, configName, customerName, firmwareName, keysName, ordersName, producersName, roleName, usersName, index, loginName, csvName, insertName, removeName
 
-""" dir_path = '/home/ubuntu/config/'
+dir_path = '/home/ubuntu/config/'
 filename = 'jwt'
 file_path = os.path.join(dir_path, filename)
 
 with open(file_path, 'r') as f:
     # Write the connection string to the file
-    first_line = f.readline() """
+    first_line = f.readline()
 
 https = Flask(__name__)
 jwt = JWTManager(https)
 https.secret_key = 'hej'
 https.config['SESSION_TYPE'] = 'filesystem'
 https.config['SESSION_COOKIE_SECURE'] = True
-https.config['JWT_SECRET_KEY'] = '3'
+https.config['JWT_SECRET_KEY'] = first_line
 
 def is_valid_jwt(token):
     # JWT token format regular expression

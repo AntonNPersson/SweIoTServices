@@ -5,7 +5,7 @@ def GetObjectFromTable(value, table, column):
     def queryFunc(session, base, value, table, column):
         # Get all rows from the specified table and column
         try:
-            theTable = session.query(GetModel(table)).filter_by(**{column: value}).first()
+            theTable = session.query(GetModel(table, session=session, Base=base)).filter_by(**{column: value}).first()
         except SQLAlchemyError as e:
             print('Error:', str(e))
             theTable = None
@@ -21,7 +21,7 @@ def GetObjectFromTable(value, table, column):
 def GetPasswordFromUsername(username):
     def queryFunc(session, base, username):
         # Query the database for the user with the provided username
-        user = session.query(GetModel('users')).filter_by(username=username).first()
+        user = session.query(GetModel('users', session=session, Base=base)).filter_by(username=username).first()
         # Check if an error occurred during retrieval
         if user is None:
             print('Error: No user exist with provided username')

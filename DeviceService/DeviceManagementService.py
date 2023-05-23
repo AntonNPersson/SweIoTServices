@@ -1,6 +1,6 @@
 import sqlalchemy
 from DeviceModule.Database import GetIdFromMac, is_mac_address
-from DeviceModule import ownsDeviceName, GetFromTable, jsonify, get_jwt_identity, jwt_required, JWTManager, Flask, lookUpAllName, GetAllObjectsInModel, GetSpecificFromColumnInTable
+from DeviceModule import secDeviceName, ownsDeviceName, GetFromTable, jsonify, get_jwt_identity, jwt_required, JWTManager, Flask, lookUpAllName, GetAllObjectsInModel, GetSpecificFromColumnInTable
 import os, logging
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
@@ -56,6 +56,11 @@ def ownsDevice(user_id, device_id):
     except (SQLAlchemyError, IntegrityError, ValueError, TypeError) as e:
         app.logger.error(e)
         return 'Error: Check Logs', 500
+
+@app.route(secDeviceName, methods=['GET'])
+@jwt_required()
+def secDevice(user_id, device_id):
+    return True
 
 
 if __name__ == '__main__':

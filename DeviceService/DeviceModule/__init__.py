@@ -5,3 +5,4 @@ from SIOTC import GetModel, executeQuery
 
 lookUpAllName = '/users/<user_id>/devices/lookup/all'
 ownsDeviceName = '/users/<user_id>/devices/<device_id>/ownsdev'
+secDeviceName = '/users/<user_id>/devices/<device_id>/secdev'

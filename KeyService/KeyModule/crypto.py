@@ -25,10 +25,15 @@ def ECCKeyGenerator():
             raise ValueError("Private key is empty")
         if not public_key:
             raise ValueError("Public key is empty")
-        # Serialize keys to PEM format
+        # Serialize private key to PEM format
         private_key_pem = private_key.private_bytes(encoding=serialization.Encoding.PEM, format=serialization.PrivateFormat.PKCS8, encryption_algorithm=serialization.NoEncryption())
-        public_key_pem = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
-        # Return keys
+        # Serialize public key to DER format
+        public_key_der = public_key.public_bytes(encoding=serialization.Encoding.DER, format=serialization.PublicFormat.SubjectPublicKeyInfo)
+        # Trim the public key to 64 bytes
+        public_key_64_bytes = public_key_der[-64:]
+        # Convert the public key to PEM format
+        public_key_pem = b'-----BEGIN PUBLIC KEY-----\n' + base64.b64encode(public_key_64_bytes).replace(b'\n', b'') + b'\n-----END PUBLIC KEY-----\n'
+        # Return private and public keys in PEM format
         return private_key_pem, public_key_pem
     except ValueError as ve:
         print("Error while generating ECC key pair: " + str(ve))
@@ -36,6 +41,7 @@ def ECCKeyGenerator():
         print("Error while generating ECC key pair: " + str(error))
     # Return None values if an error occurs
     return None, None
+
 
 def RSAKeyGenerator():
     try:

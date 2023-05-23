@@ -168,6 +168,8 @@ def Remove(object):
         'Authorization': 'Bearer ' + session['jwt'].strip(),
         'Content-Type': 'application/json'
         }
+        payload = {'deviceIds': values}
+        json_data = json.dumps(payload)
         response = requests.post('http://localhost:5002/users/' + str(session['user_id']) + '/devices/' + str(values[0]) + '/keys/remove', headers=headers, data=json_data)
         if response.status_code != 200:
             return 'Error: ' + response.text, 500

@@ -37,23 +37,23 @@ def AddKeyPairFromDevice(privateKey, publicKey, deviceId):
         try:
             # Validate inputs
             if not privateKey:
-                return None, "Private key is empty"
+                return "Private key is empty"
             if not publicKey:
-                return None, "Public key is empty"
+                return "Public key is empty"
             if not deviceId:
-                return None, "Device ID is empty"
+                return "Device ID is empty"
 
             # Find customerid from deviceid (temporary until auth working)
             device = session.query(Devices(base)).filter_by(id=deviceId).first()
             if not device:
-                return None, "No device found with device ID: " + deviceId
+                return "No device found with device ID: " + deviceId
             customerId = device.customer_id
 
             # Insert keys into database
             keysTable = base.metadata.tables.get('public.rsakeys')
             existingKey = session.query(keysTable).filter_by(device_id=deviceId).first()
             if existingKey:
-                return None, "Key pair already exists for device with ID: " + deviceId
+                return "Key pair already exists for device with ID: " + deviceId
 
             newKeys = keysTable.insert().values(privatekey=privateKey, publickey=publicKey, device_id=deviceId,
                                                 customer_id=customerId)
@@ -62,7 +62,7 @@ def AddKeyPairFromDevice(privateKey, publicKey, deviceId):
             print('Key pair added successfully')
             return 'Key pair added successfully'
         except Exception:
-            return None, 'An error occurred while adding the key pair'
+            return 'An error occurred while adding the key pair'
     return executeQuery(queryFunc, privateKey, publicKey, deviceId)
 
 

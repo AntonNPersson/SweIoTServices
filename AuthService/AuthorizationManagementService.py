@@ -1,12 +1,18 @@
-from AuthModule import  admin_required, loginName, protectName, check_password_hash, create_access_token, secretKey, tokenLocation, tokenExpire, secureCookie, Flask, request, jsonify, JWTManager, jwt_required, current_user
-from AuthModule.Database import GetObjectFromTable, GetPasswordFromUsername
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from datetime import timedelta
 import os
-
-dir_path = '/home/ubuntu/config/'
-filename = 'jwt'
-file_path = os.path.join(dir_path, filename)
+from datetime import timedelta
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from flask import Flask, request, jsonify
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token, current_user
+)
+from AuthModule import (
+    admin_required, loginName, protectName,
+    check_password_hash, secretKey, tokenLocation,
+    tokenExpire, secureCookie, file_path
+)
+from AuthModule.Database import (
+    GetObjectFromTable, GetPasswordFromUsername
+)
 
 with open(file_path, 'r') as f:
     # Write the connection string to the file
@@ -14,7 +20,7 @@ with open(file_path, 'r') as f:
 
 https = Flask(__name__)
 https.config["JWT_SECRET_KEY"] = first_line
-https.config["JWT_TOKEN_EXPIRES"] = timedelta(minutes=30)
+https.config["JWT_TOKEN_EXPIRES"] = timedelta(seconds=tokenExpire)
 jwt = JWTManager(https)
 
 @jwt.user_identity_loader

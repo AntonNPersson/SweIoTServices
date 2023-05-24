@@ -23,7 +23,7 @@ def GetPublicKeyFromID(id):
                 return None, 'No key found with device ID: ' + id
             print('Success')
             # Return the public key as a PEM-encoded string
-            private_key = HashToPem(Key.privatekey, 'RSA Private Key')
+            private_key = HashToPem(Key.privatekey, 'ECC Private Key')
             response = {"private_key": private_key}
             return json.dumps(response)
         except Exception:

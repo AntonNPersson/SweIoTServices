@@ -1,11 +1,21 @@
-from KeyModule.Database import AddKeyPairFromDevice, GetPrivateKeyFromID, GetPublicKeyFromID, RemoveKeyPairFromDevice, RemoveMultipleKeyPairFromDevice
-from KeyModule.crypto import RSAKeyGenerator, SignWithPrivateKey, ECCKeyGenerator
-import os
-from KeyModule import removeKeyPairName, admin_required, device_ownership_required, more_itertools, Flask, jwt_required, JWTManager, CheckContentType, generatorName, signingName, splitSigningName, getPrName, getPuName
+from KeyModule.Database import (
+    AddKeyPairFromDevice, GetPrivateKeyFromID,
+    GetPublicKeyFromID, RemoveKeyPairFromDevice,
+    RemoveMultipleKeyPairFromDevice
+)
+from KeyModule.crypto import (
+    RSAKeyGenerator, SignWithPrivateKey, ECCKeyGenerator
+)
 
-dir_path = '/home/ubuntu/config/'
-filename = 'jwt'
-file_path = os.path.join(dir_path, filename)
+import os
+from KeyModule import (
+    removeKeyPairName, admin_required,
+    device_ownership_required, more_itertools,
+    Flask, jwt_required, JWTManager,
+    CheckContentType, generatorName,
+    signingName, splitSigningName,
+    getPrName, getPuName, file_path
+)
 
 with open(file_path, 'r') as f:
     # Write the connection string to the file

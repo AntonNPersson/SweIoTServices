@@ -1,5 +1,7 @@
 from werkzeug.security import check_password_hash
-from flask_jwt_extended import create_access_token, get_current_user, JWTManager, jwt_required, current_user
+from flask_jwt_extended import (
+    create_access_token, get_current_user, JWTManager, jwt_required, current_user
+)
 from flask import jsonify, request, Flask
 import os
 from functools import wraps
@@ -14,4 +16,8 @@ authDeviceName = '/administrator/<user_id>/devices/<device_id>/auth'
 secretKey = os.environ.get('JWT_SECRET_KEY')
 tokenLocation = os.environ.get('JWT_TOKEN_LOCATION')
 secureCookie = os.environ.get('JWT_COOKIE_SECURE')
-tokenExpire = os.environ.get('JWT_ACCESS_TOKEN_EXPIRES', 3600)
+tokenExpire = 3600
+
+fileName = 'jwt'
+dir_path = '/home/ubuntu/config/'
+file_path = os.path.join(dir_path, fileName)

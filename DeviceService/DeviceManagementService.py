@@ -1,12 +1,16 @@
+import os
+import logging
 import sqlalchemy
-from DeviceModule.Database import GetIdFromMac, is_mac_address
-from DeviceModule import secDeviceName, ownsDeviceName, GetFromTable, jsonify, get_jwt_identity, jwt_required, JWTManager, Flask, lookUpAllName, GetAllObjectsInModel, GetSpecificFromColumnInTable
-import os, logging
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
-dir_path = '/home/ubuntu/config/'
-filename = 'jwt'
-file_path = os.path.join(dir_path, filename)
+from DeviceModule import (
+    secDeviceName, ownsDeviceName, GetFromTable,
+    jsonify, get_jwt_identity, jwt_required,
+    JWTManager, Flask, lookUpAllName,
+    GetAllObjectsInModel, GetSpecificFromColumnInTable,
+    file_path
+)
+from DeviceModule.Database import GetIdFromMac, is_mac_address
 
 with open(file_path, 'r') as f:
     # Write the connection string to the file

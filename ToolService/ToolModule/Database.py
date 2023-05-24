@@ -1,8 +1,31 @@
-from ToolModule import executeQuery, GetModel, jsonify, GetTable, request, GetSession, HTTPException, abort, json, datetime, CreateTableObject
 import json
 from datetime import datetime
-from sqlalchemy.exc import IntegrityError, ProgrammingError
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError, ProgrammingError, SQLAlchemyError
+
+from flask import request, jsonify, abort
+
+from ToolModule import (
+    executeQuery, GetModel, GetTable, GetSession,
+    HTTPException, CreateTableObject
+)
+
+def GetObjectFromTable(value, table, column):
+    def queryFunc(session, base, value, table, column):
+        # Get all rows from the specified table and column
+        try:
+            theTable = session.query(GetModel(table, session=session, Base=base)).filter_by(**{column: value}).first()
+        except SQLAlchemyError as e:
+            print('Error:', str(e))
+            theTable = None
+        # Check if an error occurred during retrieval
+        if theTable is None:
+            print('Error: No table exist with provided values')
+            return None
+        # If no error, query the row that matches the provided value
+        else:
+            return theTable
+    return executeQuery(queryFunc, value, table, column)
 
 def GetRelatedTableFromForeignKey(tableName, foreignKey, columnName):
     def queryFunc(session, base, tableName, foreignKey):
@@ -242,8 +265,7 @@ def GetObjectFromTable(value, table, column):
         theTable = session.query(GetModel(table, session=session, Base=base)).filter_by(**{column: value}).first()
         # Check if an error occurred during retrieval
         if theTable is None:
-            print('Error: No table exist with provided values')
-            return 'Error: No table exist with provided values', 404
+            return None
         # If no error, query the row that matches the provided value
         else:
             return theTable

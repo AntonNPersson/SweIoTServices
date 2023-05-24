@@ -49,6 +49,6 @@ cookieSecure = True
 cookieHttpOnly = True
 sqlAlchemyTrackModifications = False
 
-# dir_path = '/home/ubuntu/config/'
-# filename = 'jwt'
-file_path = None #os.path.join(dir_path, filename)
+dir_path = '/home/ubuntu/config/'
+filename = 'jwt'
+file_path = os.path.join(dir_path, filename)

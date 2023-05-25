@@ -12,13 +12,13 @@ from DeviceModule import (
 )
 from DeviceModule.Database import GetIdFromMacWithoutSession, is_mac_address
 
-# with open(file_path, 'r') as f:
-#     # Write the connection string to the file
-#     first_line = f.readline()
+with open(file_path, 'r') as f:
+    # Write the connection string to the file
+    first_line = f.readline()
 
 app = Flask(__name__)
 jwt = JWTManager(app)
-app.config["JWT_SECRET_KEY"] = '3'
+app.config["JWT_SECRET_KEY"] = first_line
 logging.basicConfig()
 logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
 

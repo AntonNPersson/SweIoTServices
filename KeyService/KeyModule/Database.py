@@ -35,9 +35,8 @@ def GetPublicKeyFromID(id, session, base):
                 return None
             print('Success')
             # Return the public key as a PEM-encoded string
-            private_key = HashToPem(Key.privatekey, 'ECC Private Key')
-            response = {"private_key": private_key}
-            return json.dumps(response)
+            private_key = HashToPem(Key.publickey, 'ECC Public Key')
+            return str(private_key)
         except Exception:
             return None, 404
 

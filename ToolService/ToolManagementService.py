@@ -139,6 +139,7 @@ def ChangePassword():
     db.close()
     if response == None:
         return 'Error: ' + 'Check logs', 500
+    session.clear()
     return redirect('/administrator/tools/login'), 200
 
 @https.route(csvName, methods=['POST'])

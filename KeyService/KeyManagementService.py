@@ -14,7 +14,8 @@ from KeyModule import (
     Flask, jwt_required, JWTManager,
     CheckContentType, generatorName,
     signingName, splitSigningName,
-    getPrName, getPuName, file_path, GetSession
+    getPrName, getPuName, file_path, GetSession,
+    GetSpecificFromColumnInTable, get_jwt_identity
 )
 
 with open(file_path, 'r') as f:
@@ -55,7 +56,6 @@ def RemoveKeyPairMain(user_id, device_id):
 @https.route(getPrName, methods=['GET'])
 @jwt_required()
 @admin_required
-@device_ownership_required
 def GetPrKeyMain(user_id, device_id):
     return GetPrivateKeyFromID(device_id), 200
 
@@ -63,11 +63,16 @@ def GetPrKeyMain(user_id, device_id):
 # curl -X GET http://yourdomain:5000/users/1234/devices/5678/public    
 @https.route(getPuName, methods=['GET'])
 @jwt_required()
-@device_ownership_required
 def GetPuKeyMain(user_id, device_id):
     db, base = GetSession()
+    userid = get_jwt_identity()
+    customer = GetSpecificFromColumnInTable(db, base, userid, 'customer_id', 'users')
     if is_mac_address(device_id):
         device_id = GetIdFromMacWithoutSession(device_id, db, base)
+    device = GetSpecificFromColumnInTable(db, base, device_id, 'customer_id', 'devices')
+    if device is None or device != customer:
+        db.close()
+        return 'Device does not belong to user', 400
     try:
         publicKey = GetPublicKeyFromID(device_id, db, base)
         db.close()
@@ -84,11 +89,16 @@ def GetPuKeyMain(user_id, device_id):
 # Verify ownership, sign message with private key in database, hash the message and then return hashed message
 @https.route(signingName, methods=['POST'])
 @jwt_required()
-@device_ownership_required
 def SignMessageMain(user_id, device_id):
     db, base = GetSession()
+    userid = get_jwt_identity()
+    customer = GetSpecificFromColumnInTable(db, base, userid, 'customer_id', 'users')
     if is_mac_address(device_id):
         device_id = GetIdFromMacWithoutSession(device_id, db, base)
+    device = GetSpecificFromColumnInTable(db, base, device_id, 'customer_id', 'devices')
+    if device is None or device != customer:
+        db.close()
+        return 'Device does not belong to user', 400
     try:
         data = CheckContentType()
         if(data):

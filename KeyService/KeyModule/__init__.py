@@ -6,10 +6,10 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, ec
 from cryptography.hazmat.primitives import serialization, padding
 import more_itertools
-from SIOTC import executeQuery, GetKeys, Devices, CheckContentType, GetModel, GetSession
+from SIOTC import executeQuery, GetKeys, Devices, CheckContentType, GetModel, GetSession, GetSpecificFromColumnInTable
 from SIOTC.helperhttps import admin_required, device_ownership_required
 from flask import Flask
-from flask_jwt_extended import jwt_required, JWTManager
+from flask_jwt_extended import jwt_required, JWTManager, get_jwt_identity
 
 # Endpoints
 generatorName = '/users/<user_id>/devices/<device_id>/keys/generate'

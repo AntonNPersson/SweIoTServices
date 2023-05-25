@@ -10,6 +10,61 @@ from ToolModule import (
     HTTPException, CreateTableObject
 )
 
+def updateCellValue(current_value, new_value, table, column):
+    def queryFunc(session, base, current_value, new_value, table, column):
+        try:
+            # Get the row from the specified table and column based on the current value
+            theTable = session.query(GetModel(table, session=session, Base=base)).filter_by(**{column: current_value}).first()
+            if theTable is None:
+                print(f"Error: No row exists with {column} value '{current_value}'")
+                return None
+            
+            # Update the current value with the new value
+            setattr(theTable, column, new_value)
+            session.commit()
+            return theTable
+        except SQLAlchemyError as e:
+            session.rollback()
+            print("Error:", str(e))
+            return None
+    return executeQuery(queryFunc, current_value, new_value, table, column)
+
+def updateCellValueById(id, new_value, table, column, session, base):
+        try:
+            # Get the row from the specified table and column based on the current value
+            theTable = session.query(GetModel(table, session=session, Base=base)).filter_by(id=id).first()
+            if theTable is None:
+                print(f"Error: No row exists with id '{id}'")
+                return None
+            
+            # Update the current value with the new value
+            setattr(theTable, column, new_value)
+            session.commit()
+            return theTable
+        except SQLAlchemyError as e:
+            session.rollback()
+            print("Error:", str(e))
+            return None
+
+def passwordCheckById(id, password, session, base):
+        try:
+            # Get the row from the specified table and column based on the current value
+            theTable = session.query(GetModel('users', session=session, Base=base)).filter_by(id=id).first()
+            if theTable is None:
+                print(f"Error: No row exists with id '{id}'")
+                return None
+            
+            # Update the current value with the new value
+            if theTable.password == password:
+                return True
+            else:
+                return False
+        except SQLAlchemyError as e:
+            session.rollback()
+            print("Error:", str(e))
+            return None
+
+
 def GetObjectFromTable(value, table, column):
     def queryFunc(session, base, value, table, column):
         # Get all rows from the specified table and column
@@ -26,6 +81,12 @@ def GetObjectFromTable(value, table, column):
         else:
             return theTable
     return executeQuery(queryFunc, value, table, column)
+
+def GetTableWithoutSession(tableName, session, base):
+        # Construct the full table name (including schema) and use it to create a table object
+        realName = "public." + tableName
+        table = CreateTableObject(realName, base.metadata)
+        return table
 
 def GetRelatedTableFromForeignKey(tableName, foreignKey, columnName):
     def queryFunc(session, base, tableName, foreignKey):
@@ -159,6 +220,56 @@ def InsertMultipleToTable(table, values):
         # Return success
         return True
     return executeQuery(queryFunc, values)
+
+def InsertMultipleToTableWithoutSession(table, values, session, base):
+        # Get table model and columns
+        name = "public." + table
+        tableModel = base.metadata.tables.get(name)
+        # Check if table exists
+        if tableModel is None:
+            return False, 'Error: Table not found'
+        columnsModel = tableModel.columns.keys()
+        # Ensure that values are provided
+        if values is None: "Error: No values provided"
+        # Loop through the columns in the table and create a dictionary
+        # with column names and values to insert
+        for value in values:
+            newValues = {}
+            for column in columnsModel:
+                if column in value:
+                    colType = str(tableModel.columns[column].type)
+                    colValue = value[column]
+                    if colType.startswith('VARCHAR') or colType.startswith('TEXT'):
+                        newValues[column] = colValue
+                    elif colType.startswith('INTEGER'):
+                        newValues[column] = int(colValue)
+                    elif colType.startswith('BOOLEAN'):
+                        newValues[column] = colValue.lower() == 'true'
+                    elif colType.startswith('NUMERIC'):
+                        newValues[column] = float(colValue)
+                    elif colType.startswith('DATE'):
+                        newValues[column] = datetime.strptime(colValue, '%Y-%m-%d').date()
+                    elif colType.startswith('TIME'):
+                        newValues[column] = datetime.strptime(colValue, '%H:%M:%S').time()
+                    elif colType.startswith('TIMESTAMP'):
+                        newValues[column] = datetime.strptime(colValue, '%Y-%m-%d %H:%M:%S')
+                    elif colType.startswith('JSON'):
+                        newValues[column] = json.loads(colValue)
+                    elif colType.startswith('ARRAY'):
+                        newValues[column] = colValue.split(',')
+                elif column == 'id':
+                    # Generate a new id value using the default sequence
+                    query = text(f"SELECT nextval('{table}_id_seq')")
+                    result = session.execute(query)
+                    newValues[column] = result.scalar()
+                else:
+                    newValues[column] = None  # Use default value for missing columns
+            # Insert the new object into the table
+            newObject = tableModel.insert().values(**newValues)
+            session.execute(newObject)
+            session.commit()
+        # Return success
+        return True
 
 def InsertToTableWithoutSession(session, base, table, values):
         # Get table model and columns

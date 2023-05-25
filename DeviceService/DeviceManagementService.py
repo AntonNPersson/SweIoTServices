@@ -8,7 +8,7 @@ from DeviceModule import (
     jsonify, get_jwt_identity, jwt_required,
     JWTManager, Flask, lookUpAllName,
     GetAllObjectsInModel, GetSpecificFromColumnInTable,
-    file_path
+    file_path, GetSession
 )
 from DeviceModule.Database import GetIdFromMac, is_mac_address
 
@@ -47,24 +47,28 @@ def lookUp(user_id):
 @jwt_required()
 def ownsDevice(user_id, device_id):
     try:
+        db, base = GetSession()
         userid = get_jwt_identity()
-        customer = GetSpecificFromColumnInTable(userid, 'customer_id', 'users')
+        customer = GetSpecificFromColumnInTable(db, base, userid, 'customer_id', 'users')
         if customer is None:
             return str(False), 200
         if is_mac_address(device_id):
             device_id = GetIdFromMac(device_id)
-        device = GetSpecificFromColumnInTable(device_id, 'customer_id', 'devices')
+        device = GetSpecificFromColumnInTable(db, base, device_id, 'customer_id', 'devices')
         if device is None or device != customer:
+            db.close()
             return str(False), 200
+        db.close()
         return str(True), 200
     except (SQLAlchemyError, IntegrityError, ValueError, TypeError) as e:
         app.logger.error(e)
+        db.close()
         return 'Error: Check Logs', 500
 
 @app.route(secDeviceName, methods=['GET'])
 @jwt_required()
 def secDevice(user_id, device_id):
-    return True
+    return str(True), 200
 
 
 if __name__ == '__main__':

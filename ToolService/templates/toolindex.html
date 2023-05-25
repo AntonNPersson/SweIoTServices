@@ -58,13 +58,31 @@
 			background-color: #3e8e41;
 		}
 
-		#secretList {
-			display: none;
-			cursor: default;
-			text-align: center;
-			margin-left: 4rem;
-			width: 35%;
-		}
+		#container {
+  display: flex;
+}
+
+#container > div {
+  display: none;
+  cursor: default;
+  text-align: center;
+  width: 50%;
+}
+
+#secretList {
+  margin-left: 4rem;
+}
+
+#secretList1 {
+	position: absolute;
+	
+  margin-left: 35rem;
+}
+
+#submit {
+	margin-left: 4rem;
+}
+
 
 		#secretButton1 {
 			align-self: right;
@@ -127,24 +145,35 @@
 	<button onclick="window.location.href = '/administrator/all/roles/all/tools/manager'">Roles</button>
 	<button onclick="window.location.href = '/administrator/all/users/all/tools/manager'">Users</button>
 	<button id="secretButton" class="tooltip">Account Settings (WIP)
-		<span class="tooltiptext">Settings for your account, features will increase.</span>
+		<span class="tooltiptext">Settings for your account, features will increase. Password changing works!</span>
 		<span class="menu-icon">&#9776;</span>
 	</button>
-	<button id="secretButton1" class="tooltip">Database Log (WIP)
+	<button id="secretButton1" class="tooltip">History (WIP)
 		<span class="tooltiptext">View the database log. Does not work currently</span>
 		<span class="menu-icon">&#9776;</span>
 	</button>
-	<form id="secretList">
+	<div id="container">
+	<form id="secretList" action="/users/user_id/profile/change_password" method="POST">
 		<label for="username">Old Password:</label>
-		<input type="text" id="username" name="user"><br><br>
-		<label for="password">New Password:</label>
-		<input type="password" id="password" name="password"><br><br>
+		<input type="text" id="oldPassword" name="oldPassword" required><br><br>
+		<label for="newPassword">New Password:</label>
+		<input type="password" id="newPassword" name="newPassword" required><br><br>
 		<button type="submit">Submit</button>
-	</form>
+	  </form>
+	  <form id ="secretList1">
+		<input type="text" id="history" name="history" required><br><br>
+	  </form>
+	</div>
 	<script>
 	$(document).ready(function() {
 		$("#secretButton").click(function() {
 		  $("#secretList").toggle();
+		});
+	  });
+
+	  $(document).ready(function() {
+		$("#secretButton1").click(function() {
+		  $("#secretList1").toggle();
 		});
 	  });
 	</script>

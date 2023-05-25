@@ -4,7 +4,7 @@ from flask import Flask, jsonify
 from SIOTC.Operations import (
     GetAllFromTable, GetFromTable, GetTable, GetAllObjectsInModel, GetSpecificFromColumnInTable
 )
-from SIOTC import GetModel, executeQuery
+from SIOTC import GetModel, executeQuery, GetSession
 
 import os
 

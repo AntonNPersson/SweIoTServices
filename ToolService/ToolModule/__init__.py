@@ -41,6 +41,7 @@ loginName = '/administrator/tools/login'
 csvName = '/administrator/tools/csv'
 insertName = '/administrator/all/<object>/all/tools/insert'
 removeName = '/administrator/all/<object>/all/tools/remove'
+changepasswordName = '/users/user_id/profile/change_password'
 
 # Configuration
 permanenceExpireTime = datetime.timedelta(minutes=365)

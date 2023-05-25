@@ -29,6 +29,7 @@ jwt = JWTManager(https)
 # Verify ownership, generate RSA key pair, add to database and then return public key  
 @https.route(generatorName, methods=['POST'])
 @jwt_required()
+@admin_required
 def GenerateKeysMain(user_id, device_id):
         private_Key, public_Key = ECCKeyGenerator()
         print(public_Key, private_Key)

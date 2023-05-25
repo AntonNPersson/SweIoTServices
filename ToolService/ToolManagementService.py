@@ -14,36 +14,37 @@ from flask_jwt_extended import JWTManager
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ToolModule import (
-    GetTable,
+    GetTable, GetSession,
     deviceName, batchName, configName, customerName, firmwareName,
     keysName, ordersName, producersName, roleName, usersName,
     index, loginName, csvName, insertName, removeName,
     permanenceExpireTime, cookieSameSite, cookieSecure, cookieHttpOnly, sqlAlchemyTrackModifications,
-    file_path
+    file_path, changepasswordName
 )
 
 from ToolModule.Database import (
     RemoveFromTable, InsertToTable, GetObjectFromTable, GetRelatedTableFromForeignKey,
-    UpdateTable, RemoveMultipleFromTable, InsertMultipleToTable
+    UpdateTable, RemoveMultipleFromTable, InsertMultipleToTable, GetTableWithoutSession,
+    InsertMultipleToTableWithoutSession, updateCellValueById, passwordCheckById
     )
 
 from ToolModule.Helper import (
     GetList, secure_login, login_required
     )
 
-with open(file_path, 'r') as f:
-    # Write the connection string to the file
-    first_line = f.readline()
+# with open(file_path, 'r') as f:
+#     # Write the connection string to the file
+#     first_line = f.readline()
 
 https = Flask(__name__)
 jwt = JWTManager(https)
-https.secret_key = first_line
+https.secret_key = 'super secret key'
 https.config['SESSION_COOKIE_SAMESITE'] = cookieSameSite
 https.config['SESSION_COOKIE_SECURE'] = cookieSecure
 https.config['SESSION_COOKIE_HTTPONLY'] = cookieHttpOnly
 https.config['JWT_ACCESS_TOKEN_EXPIRES'] = permanenceExpireTime
 https.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = sqlAlchemyTrackModifications
-https.config['JWT_SECRET_KEY'] = first_line
+https.config['JWT_SECRET_KEY'] = '3'
 https.config['LOGIN_VIEW'] = loginName
 
 @https.route('/administrator/all/<objects>/all/tools/getRelatedTable/<key_type>/<foreign_key>', methods=['GET'])
@@ -81,11 +82,7 @@ def login():
 
         try:
             json_data = response.json()
-            if 'jwt' in json_data:
-                jwt_token = json_data['jwt']
-                print(jwt_token)
-            else:
-                print("JWT token not found in the response")
+            jwt_token = json_data['jwt']
         except json.JSONDecodeError:
             print("Invalid JSON response")
 
@@ -134,37 +131,22 @@ def Insert(object):
     # return a list of all records in the specified table
     return redirect('/administrator/all/'+ object +'/all/tools/manager'), 200
 
-
-@https.route(removeName, methods=['POST'])
+@https.route(changepasswordName, methods=['POST'])
 @login_required
-def Remove(object):
-    # Print the form data received in the request
-    print(request.form)
-    # Get a list of checkedIds from the form data
-    values = request.form.getlist('checkedIds[]')
-    json_data = json.dumps(values)
-    # Print the list of selected values to verify that it is not empty
-    # print("Selected values:", values)
-    # if 'devices' in request.url:
-    #     headers = {
-    #     'Authorization': 'Bearer ' + session['jwt'].strip(),
-    #     'Content-Type': 'application/json'
-    #     }
-    #     payload = {'deviceIds': values}
-    #     json_data = json.dumps(payload)
-    #     response = requests.post('http://localhost:5002/users/' + str(session['user_id']) + '/devices/' + str(values[0]) + '/keys/remove', headers=headers, data=json_data)
-    #     if response.status_code != 200:
-    #         return 'Error: ' + response.text, 500
-    # Loop through the selected values and remove each from the table using the op.RemoveFromTable function
-    RemoveMultipleFromTable(object, values)
-    # Return a refreshed list of the remaining objects in the table
-    return redirect('/administrator/all/'+ object +'/all/tools/manager'), 200
+def ChangePassword():
+    db, base = GetSession()
+    response = updateCellValueById(session['user_id'], generate_password_hash(request.form['newPassword']), 'users', 'password', db, base)
+    db.close()
+    if response == None:
+        return 'Error: ' + 'Check logs', 500
+    return redirect('/administrator/tools/login'), 200
 
 @https.route(csvName, methods=['POST'])
 @login_required
 def Upload():
     # Try to get csvFile from name and tableName from form
     try:
+        db, base = GetSession()
         csvFile = request.files['csvFile']
         tableName = request.form['tableName']
         # Use StringIO for reading file
@@ -177,17 +159,34 @@ def Upload():
                 convertedRow = {}
                 for i, columnName in enumerate(columnNames):
                     try:
-                        columnType = GetTable(tableName).columns[columnName].type
+                        columnType = GetTableWithoutSession(tableName, db, base).columns[columnName].type
                         convertedValue = columnType.python_type(row[i])
+                        # Check if the column name is "password" and hash the value
+                        if columnName == 'password':
+                            convertedValue = generate_password_hash(convertedValue)
                         convertedRow[columnName] = convertedValue
                     except ValueError as e:
                         print(f"Error converting value '{row[i]}' to {columnType}: {e}")
                         return 'Error converting value', 500
                 rows.append(convertedRow)
-            InsertMultipleToTable(tableName, rows)
+            InsertMultipleToTableWithoutSession(tableName, rows, db, base)
+
+            # Generate keypair for each device added
+            if 'devices' in request.url:
+                headers = {
+                    'Authorization': 'Bearer ' + session['jwt'].strip(),
+                }
+                for row in rows:
+                    deviceID = row.get('id')
+                    response = requests.post('http://localhost:5002/users/' + str(session['user_id']) + '/devices/' + str(deviceID) + '/keys/generate', headers=headers)
+                    if response.status_code != 200:
+                        return 'Error: ' + response.text, 500
+
+        db.close()
         return 'Upload successful', 200
     except Exception as e:
         print(e)
+        db.close()
         return 'Error uploading CSV file', 500
     
 @https.route("/administrator/all/<table_name>/all/tools/update", methods=["POST"])
@@ -254,4 +253,4 @@ def Index():
    
 
 if __name__ == '__main__':
-    https.run(ssl_context='adhoc', host='0.0.0.0', port=5000)
+    https.run(ssl_context='adhoc', host='0.0.0.0', port=5000, debug=True)

@@ -15,8 +15,8 @@ from KeyModule import (
     CheckContentType, generatorName,
     signingName, splitSigningName,
     getPrName, getPuName, file_path, GetSession,
-    GetSpecificFromColumnInTable, get_jwt_identity
-)
+    GetSpecificFromColumnInTable, get_jwt_identity, jsonify
+    )
 
 with open(file_path, 'r') as f:
     # Write the connection string to the file
@@ -77,9 +77,10 @@ def GetPuKeyMain(user_id, device_id):
         publicKey = GetPublicKeyFromID(device_id, db, base)
         db.close()
         if publicKey is None:
-            return 'No public key found for device with ID: ' + device_id, 200
+            return 'No public key found for device with ID: ' + device_id, 404
         else:
-            return publicKey, 200
+            response = {"public_key": publicKey}
+            return jsonify(response), 200
     except Exception as e:
         db.close()
         https.logger.error(e)
@@ -110,7 +111,7 @@ def SignMessageMain(user_id, device_id):
             if(message is None):
                 return 'Failed to sign message', 200
             response = {"signed_message": message}
-            return response, 200
+            return jsonify(response), 200
         else:
             return 'Wrong Content type', 400
     except Exception as e:

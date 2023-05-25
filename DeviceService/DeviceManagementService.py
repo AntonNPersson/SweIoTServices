@@ -10,7 +10,7 @@ from DeviceModule import (
     GetAllObjectsInModel, GetSpecificFromColumnInTable,
     file_path, GetSession
 )
-from DeviceModule.Database import GetIdFromMac, is_mac_address
+from DeviceModule.Database import GetIdFromMacWithoutSession, is_mac_address
 
 with open(file_path, 'r') as f:
     # Write the connection string to the file
@@ -53,7 +53,7 @@ def ownsDevice(user_id, device_id):
         if customer is None:
             return str(False), 200
         if is_mac_address(device_id):
-            device_id = GetIdFromMac(device_id)
+            device_id = GetIdFromMacWithoutSession(device_id, db, base)
         device = GetSpecificFromColumnInTable(db, base, device_id, 'customer_id', 'devices')
         if device is None or device != customer:
             db.close()

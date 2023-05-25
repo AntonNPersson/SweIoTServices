@@ -106,7 +106,7 @@ def SignMessageMain(user_id, device_id):
             db.close()
             if(privateKey is None):
                 return 'No private key found for device with ID: ' + device_id, 200
-            message = SignWithPrivateKey(privateKey, data)
+            message = SignWithPrivateKey(privateKey, data['message'])
             if(message is None):
                 return 'Failed to sign message', 200
             response = {"signed_message": message}

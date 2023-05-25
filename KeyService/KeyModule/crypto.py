@@ -10,13 +10,7 @@ def SignWithPrivateKey(private_key_pem, message):
 
     # Sign the message using the private key
     signature = private_key.sign(
-        messageBytes,
-        algorithm=hashes.SHA256(),
-        padding=padding.PSS(
-            mgf=padding.MGF1(hashes.SHA256()),
-            salt_length=padding.PSS.MAX_LENGTH
-        )
-    )
+        messageBytes, ec.ECDSA(hashes.SHA256()))
 
     # Convert the signature to a hexadecimal string
     hex_signature = signature.hex()

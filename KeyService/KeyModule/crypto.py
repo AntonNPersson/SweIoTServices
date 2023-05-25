@@ -4,13 +4,22 @@ def SignWithPrivateKey(private_key_pem, message):
     # Load the private key from the PEM string
     private_key = serialization.load_pem_private_key(
         private_key_pem, password=None)
+
     # Convert message to bytes
     messageBytes = message.encode('utf-8')
 
     # Sign the message using the private key
-    signature = private_key.sign(messageBytes,padding.PSS(mgf=padding.MGF1(hashes.SHA256()),salt_length=padding.PSS.MAX_LENGTH),hashes.SHA256())
+    signature = private_key.sign(
+        messageBytes,
+        algorithm=hashes.SHA256(),
+        padding=padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+        )
+    )
+
     # Convert the signature to a hexadecimal string
-    hex_signature = ''.join(format(b, '02X') for b in signature)
+    hex_signature = signature.hex()
 
     # Return the signature as a string
     return f"{message}#{hex_signature}"

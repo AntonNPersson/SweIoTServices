@@ -32,19 +32,19 @@ from ToolModule.Helper import (
     GetList, secure_login, login_required
     )
 
-# with open(file_path, 'r') as f:
-#     # Write the connection string to the file
-#     first_line = f.readline()
+with open(file_path, 'r') as f:
+    # Write the connection string to the file
+    first_line = f.readline()
 
 https = Flask(__name__)
 jwt = JWTManager(https)
-https.secret_key = 'super secret key'
+https.secret_key = first_line
 https.config['SESSION_COOKIE_SAMESITE'] = cookieSameSite
 https.config['SESSION_COOKIE_SECURE'] = cookieSecure
 https.config['SESSION_COOKIE_HTTPONLY'] = cookieHttpOnly
 https.config['JWT_ACCESS_TOKEN_EXPIRES'] = permanenceExpireTime
 https.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = sqlAlchemyTrackModifications
-https.config['JWT_SECRET_KEY'] = '3'
+https.config['JWT_SECRET_KEY'] = first_line
 https.config['LOGIN_VIEW'] = loginName
 
 @https.route('/administrator/all/<objects>/all/tools/getRelatedTable/<key_type>/<foreign_key>', methods=['GET'])
@@ -253,4 +253,4 @@ def Index():
    
 
 if __name__ == '__main__':
-    https.run(ssl_context='adhoc', host='0.0.0.0', port=5000, debug=True)
+    https.run(ssl_context='adhoc', host='0.0.0.0', port=5000)

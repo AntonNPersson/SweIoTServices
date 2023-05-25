@@ -57,9 +57,11 @@ def ownsDevice(user_id, device_id):
         device = GetSpecificFromColumnInTable(db, base, device_id, 'customer_id', 'devices')
         if device is None or device != customer:
             db.close()
-            return str(False), 200
+            response = {'result': False}
+            return jsonify(response), 200
         db.close()
-        return str(True), 200
+        response = {'result': True}
+        return jsonify(response), 200
     except (SQLAlchemyError, IntegrityError, ValueError, TypeError) as e:
         app.logger.error(e)
         db.close()
@@ -68,7 +70,8 @@ def ownsDevice(user_id, device_id):
 @app.route(secDeviceName, methods=['GET'])
 @jwt_required()
 def secDevice(user_id, device_id):
-    return str(True), 200
+    response = {'result': True}
+    return jsonify(response), 200
 
 
 if __name__ == '__main__':

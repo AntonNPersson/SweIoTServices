@@ -3,8 +3,8 @@ import os
 import base64
 import hashlib
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import rsa, ec
-from cryptography.hazmat.primitives import serialization, padding
+from cryptography.hazmat.primitives.asymmetric import rsa, ec, padding
+from cryptography.hazmat.primitives import serialization
 import more_itertools
 from SIOTC import executeQuery, GetKeys, Devices, CheckContentType, GetModel, GetSession, GetSpecificFromColumnInTable
 from SIOTC.helperhttps import admin_required, device_ownership_required

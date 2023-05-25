@@ -1,26 +1,38 @@
-from KeyModule import GetKeys, executeQuery, Devices
+from KeyModule import GetKeys, executeQuery, Devices, GetModel
 from .crypto import HashToPem, PemToHash
-import json
+import json, re
 
-def GetPrivateKeyFromID(id):
-    def queryFunc(session, base, id):
+def GetPrivateKeyFromID(id, session, base):
         # Query the database for the private key associated with the provided ID
         Key = session.query(GetKeys(base)).filter_by(device_id=id).first()
         if Key is None:
-            return None, 'No key found with device ID: ' + id
+            return None
         print('Success')
         # Return the private key
         return Key.privatekey
-    return executeQuery(queryFunc, id)
+
+def is_mac_address(string):
+    pattern = r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$'
+    return re.match(pattern, string) is not None
+
+def GetIdFromMacWithoutSession(mac, session, base):
+    # Query the database for the device with the provided mac address
+    device = session.query(GetModel('devices', session, base)).filter_by(mac_adress=mac).first()
+    # Check if an error occurred during retrieval
+    if device is None:
+        print('Error: No device exist with provided mac address')
+        return None
+    # If no error, return the device's id
+    else:
+        return device.id
     
-def GetPublicKeyFromID(id):
-    def queryFunc(session, base, id):
+def GetPublicKeyFromID(id, session, base):
         try:
             # Query the keys table to get the key with the specified device_id
             Key = session.query(GetKeys(base)).filter_by(device_id=id).first()
             # Raise an exception if no key is found
             if Key is None:
-                return None, 'No key found with device ID: ' + id
+                return None
             print('Success')
             # Return the public key as a PEM-encoded string
             private_key = HashToPem(Key.privatekey, 'ECC Private Key')
@@ -28,7 +40,6 @@ def GetPublicKeyFromID(id):
             return json.dumps(response)
         except Exception:
             return None, 404
-    return executeQuery(queryFunc, id)
 
 def RemoveKeyPairFromDevice(deviceId):
     def queryFunc(session, base, deviceId):
@@ -37,7 +48,7 @@ def RemoveKeyPairFromDevice(deviceId):
             Key = session.query(GetKeys(base)).filter_by(device_id=deviceId).first()
             # Raise an exception if no key is found
             if Key is None:
-                return None, 'No key found with device ID: ' + deviceId
+                return None
             # Delete the key from the database
             session.delete(Key)
             session.commit()
@@ -55,7 +66,7 @@ def RemoveMultipleKeyPairFromDevice(deviceIds):
                 Key = session.query(GetKeys(base)).filter_by(device_id=deviceId).first()
                 # Raise an exception if no key is found
                 if Key is None:
-                    return None, 'No key found with device ID: ' + deviceId
+                    return None
                 # Delete the key from the database
                 session.delete(Key)
             session.commit()

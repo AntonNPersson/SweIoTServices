@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, ec
 from cryptography.hazmat.primitives import serialization, padding
 import more_itertools
-from SIOTC import executeQuery, GetKeys, Devices, CheckContentType, GetModel
+from SIOTC import executeQuery, GetKeys, Devices, CheckContentType, GetModel, GetSession
 from SIOTC.helperhttps import admin_required, device_ownership_required
 from flask import Flask
 from flask_jwt_extended import jwt_required, JWTManager

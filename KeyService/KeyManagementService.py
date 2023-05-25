@@ -1,7 +1,7 @@
 from KeyModule.Database import (
     AddKeyPairFromDevice, GetPrivateKeyFromID,
     GetPublicKeyFromID, RemoveKeyPairFromDevice,
-    RemoveMultipleKeyPairFromDevice
+    RemoveMultipleKeyPairFromDevice, is_mac_address, GetIdFromMacWithoutSession
 )
 from KeyModule.crypto import (
     RSAKeyGenerator, SignWithPrivateKey, ECCKeyGenerator
@@ -14,7 +14,7 @@ from KeyModule import (
     Flask, jwt_required, JWTManager,
     CheckContentType, generatorName,
     signingName, splitSigningName,
-    getPrName, getPuName, file_path
+    getPrName, getPuName, file_path, GetSession
 )
 
 with open(file_path, 'r') as f:
@@ -65,13 +65,18 @@ def GetPrKeyMain(user_id, device_id):
 @jwt_required()
 @device_ownership_required
 def GetPuKeyMain(user_id, device_id):
+    db, base = GetSession()
+    if is_mac_address(device_id):
+        device_id = GetIdFromMacWithoutSession(device_id, db, base)
     try:
-        publicKey = GetPublicKeyFromID(device_id)
+        publicKey = GetPublicKeyFromID(device_id, db, base)
+        db.close()
         if publicKey is None:
             return 'No public key found for device with ID: ' + device_id, 200
         else:
             return publicKey, 200
     except Exception as e:
+        db.close()
         https.logger.error(e)
         return 'Error: Check Logs', 500
 
@@ -81,10 +86,14 @@ def GetPuKeyMain(user_id, device_id):
 @jwt_required()
 @device_ownership_required
 def SignMessageMain(user_id, device_id):
+    db, base = GetSession()
+    if is_mac_address(device_id):
+        device_id = GetIdFromMacWithoutSession(device_id, db, base)
     try:
         data = CheckContentType()
         if(data):
-            privateKey = GetPrivateKeyFromID(device_id)
+            privateKey = GetPrivateKeyFromID(device_id, db, base)
+            db.close()
             if(privateKey is None):
                 return 'No private key found for device with ID: ' + device_id, 200
             message = SignWithPrivateKey(privateKey, data)

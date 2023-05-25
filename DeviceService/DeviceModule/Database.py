@@ -17,7 +17,7 @@ def GetIdFromMac(mac):
 
 def GetIdFromMacWithoutSession(mac, session, base):
     # Query the database for the device with the provided mac address
-    device = session.query(GetModel('devices')).filter_by(mac_adress=mac).first()
+    device = session.query(GetModel('devices', session, base)).filter_by(mac_adress=mac).first()
     # Check if an error occurred during retrieval
     if device is None:
         print('Error: No device exist with provided mac address')

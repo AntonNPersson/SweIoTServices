@@ -97,8 +97,11 @@ def secDevice(user_id, device_id):
         r = make_response(jsonify(response), 403)
         r.headers['Content-Type'] = 'application/json'
         return r
+    
     deviceSecure = GetSpecificFromColumnInTable(db, base, device_id, 'secure', 'devices')
-    if(deviceSecure is False or deviceSecure is None):
+    deviceSecureBool = eval(deviceSecure)
+
+    if deviceSecureBool is False or deviceSecureBool is None:
         response = {'result': False}
         r = make_response(jsonify(response), 403)
         r.headers['Content-Type'] = 'application/json'

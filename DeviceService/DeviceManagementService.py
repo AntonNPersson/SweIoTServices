@@ -81,6 +81,31 @@ def ownsDevice(user_id, device_id):
 @app.route(secDeviceName, methods=['GET'])
 @jwt_required()
 def secDevice(user_id, device_id):
+    db, base = GetSession()
+    userid = get_jwt_identity()
+    if userid != user_id:
+        response = {'result': False}
+        r = make_response(jsonify(response), 401)
+        r.headers['Content-Type'] = 'application/json'
+        return r
+    customer = GetSpecificFromColumnInTable(db, base, userid, 'customer_id', 'users')
+    if customer is None:
+        response = {'result': False}
+        r = make_response(jsonify(response), 404)
+        r.headers['Content-Type'] = 'application/json'
+        return r
+    device = GetFromTable(device_id, 'devices')
+    if device is None or device.customer_id != customer:
+        response = {'result': False}
+        r = make_response(jsonify(response), 403)
+        r.headers['Content-Type'] = 'application/json'
+        return r
+    if(device.secure == 0):
+        response = {'result': False}
+        r = make_response(jsonify(response), 403)
+        r.headers['Content-Type'] = 'application/json'
+        return r
+    db.close()
     response = {'result': True}
     r = make_response(jsonify(response), 200)
     r.headers['Content-Type'] = 'application/json'

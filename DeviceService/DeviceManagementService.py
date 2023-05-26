@@ -83,11 +83,6 @@ def ownsDevice(user_id, device_id):
 def secDevice(user_id, device_id):
     db, base = GetSession()
     userid = get_jwt_identity()
-    if userid != user_id:
-        response = {'result': False}
-        r = make_response(jsonify(response), 401)
-        r.headers['Content-Type'] = 'application/json'
-        return r
     customer = GetSpecificFromColumnInTable(db, base, userid, 'customer_id', 'users')
     if customer is None:
         response = {'result': False}

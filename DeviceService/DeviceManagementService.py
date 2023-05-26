@@ -95,7 +95,7 @@ def secDevice(user_id, device_id):
         r = make_response(jsonify(response), 403)
         r.headers['Content-Type'] = 'application/json'
         return r
-    if(device.secure != 0):
+    if(device.secure == False):
         response = {'result': False}
         r = make_response(jsonify(response), 403)
         r.headers['Content-Type'] = 'application/json'

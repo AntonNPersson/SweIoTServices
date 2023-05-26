@@ -14,10 +14,9 @@ from AuthModule.Database import (
     GetObjectFromTable, GetPasswordFromUsername
 )
 
-# with open(file_path, 'r') as f:
-#     # Write the connection string to the file
-#     first_line = f.readline()
-first_line = '3'
+with open(file_path, 'r') as f:
+    # Write the connection string to the file
+    first_line = f.readline()
 
 https = Flask(__name__)
 https.config["JWT_SECRET_KEY"] = first_line

@@ -25,6 +25,8 @@ def GetIdFromMacWithoutSession(mac, session, base):
     # If no error, return the device's id
     else:
         return device.id
+    
+
 
 def is_mac_address(string):
     pattern = r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$'

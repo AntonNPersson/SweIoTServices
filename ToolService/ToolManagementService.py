@@ -132,15 +132,17 @@ def Insert(object):
     return redirect('/administrator/all/'+ object +'/all/tools/manager'), 200
 
 @https.route(removeName, methods=['POST'])
-@login_required
 def Remove(object):
-    # retrieve form data from the HTTP request
-    values = dict(request.form)
-    # remove the 'id' field from the values dictionary
-    values.pop('id', None)
-    # remove the specified record from the database table
-    RemoveMultipleFromTable(object, values)
-    # return a list of all records in the specified table
+    # Print the form data received in the request
+    print(request.form)
+    # Get a list of checkedIds from the form data
+    values = request.form.getlist('checkedIds[]')
+    # Print the list of selected values to verify that it is not empty
+    print("Selected values:", values)
+    # Loop through the selected values and remove each from the table using the op.RemoveFromTable function
+    for value in values:
+        RemoveFromTable(object, value)
+    # Return a refreshed list of the remaining objects in the table
     return redirect('/administrator/all/'+ object +'/all/tools/manager'), 200
 
 @https.route(changepasswordName, methods=['POST'])

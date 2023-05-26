@@ -131,6 +131,18 @@ def Insert(object):
     # return a list of all records in the specified table
     return redirect('/administrator/all/'+ object +'/all/tools/manager'), 200
 
+@https.route(removeName, methods=['POST'])
+@login_required
+def Remove(object):
+    # retrieve form data from the HTTP request
+    values = dict(request.form)
+    # remove the 'id' field from the values dictionary
+    values.pop('id', None)
+    # remove the specified record from the database table
+    RemoveFromTable(object, values)
+    # return a list of all records in the specified table
+    return redirect('/administrator/all/'+ object +'/all/tools/manager'), 200
+
 @https.route(changepasswordName, methods=['POST'])
 @login_required
 def ChangePassword():

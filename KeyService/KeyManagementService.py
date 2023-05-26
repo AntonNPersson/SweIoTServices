@@ -42,7 +42,6 @@ def GenerateKeysMain(user_id, device_id):
             return AddKeyPairFromDevice(private_Key, public_Key, device_id), 200
         
 @https.route(removeKeyPairName, methods=['POST'])
-@jwt_required()
 @admin_required
 def RemoveKeyPairMain(user_id, device_id):
     data = CheckContentType()

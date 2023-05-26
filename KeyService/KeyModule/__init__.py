@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives import serialization
 import more_itertools
 from SIOTC import executeQuery, GetKeys, Devices, CheckContentType, GetModel, GetSession, GetSpecificFromColumnInTable
 from SIOTC.helperhttps import admin_required, device_ownership_required
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, Response, make_response
 from flask_jwt_extended import jwt_required, JWTManager, get_jwt_identity
 
 # Endpoints

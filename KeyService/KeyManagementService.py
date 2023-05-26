@@ -16,7 +16,7 @@ from KeyModule import (
     signingName, splitSigningName,
     getPrName, getPuName, file_path, GetSession,
     GetSpecificFromColumnInTable, get_jwt_identity, jsonify,
-    Response
+    make_response
     )
 
 with open(file_path, 'r') as f:
@@ -81,7 +81,9 @@ def GetPuKeyMain(user_id, device_id):
             return 'No public key found for device with ID: ' + device_id, 404
         else:
             response = {"public_key": publicKey}
-            return jsonify(response), 200, {'Content-Type': 'application/json'}
+            r = make_response(jsonify(response), 200)
+            r.headers['Content-Type'] = 'application/json'
+            return r
     except Exception as e:
         db.close()
         https.logger.error(e)
@@ -112,9 +114,9 @@ def SignMessageMain(user_id, device_id):
             if(message is None):
                 return 'Failed to sign message', 200
             response = {"signed_message": message}
-            r = Response(jsonify(response), mimetype="application/json")
-            r.headers["Content-Type"] = "application/json"
-            return r, 200
+            r = make_response(jsonify(response), 200)
+            r.headers['Content-Type'] = 'application/json'
+            return r
         else:
             return 'Wrong Content type', 400
     except Exception as e:

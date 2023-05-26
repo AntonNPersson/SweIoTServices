@@ -20,4 +20,4 @@ tokenExpire = 3600
 
 fileName = 'jwt'
 dir_path = '/home/ubuntu/config/'
-file_path = None #os.path.join(dir_path, fileName)
+file_path = os.path.join(dir_path, fileName)

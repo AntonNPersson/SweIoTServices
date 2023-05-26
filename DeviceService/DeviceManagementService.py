@@ -52,7 +52,7 @@ def ownsDevice(user_id, device_id):
         customer = GetSpecificFromColumnInTable(db, base, userid, 'customer_id', 'users')
         if customer is None:
             response = {'result': False}
-            r = make_response(jsonify(response), 200)
+            r = make_response(jsonify(response), 404)  # 404 Not Found
             r.headers['Content-Type'] = 'application/json'
             return r
         if is_mac_address(device_id):
@@ -61,21 +61,22 @@ def ownsDevice(user_id, device_id):
         if device is None or device != customer:
             db.close()
             response = {'result': False}
-            r = make_response(jsonify(response), 200)
+            r = make_response(jsonify(response), 403)  # 403 Forbidden
             r.headers['Content-Type'] = 'application/json'
             return r
         db.close()
         response = {'result': True}
-        r = make_response(jsonify(response), 200)
+        r = make_response(jsonify(response), 200)  # 200 OK
         r.headers['Content-Type'] = 'application/json'
         return r
     except (SQLAlchemyError, IntegrityError, ValueError, TypeError) as e:
         app.logger.error(e)
         db.close()
         response = {'result': 'Error: Check Logs'}
-        r = make_response(jsonify(response), 500)
+        r = make_response(jsonify(response), 500)  # 500 Internal Server Error
         r.headers['Content-Type'] = 'application/json'
         return r
+
 
 @app.route(secDeviceName, methods=['GET'])
 @jwt_required()

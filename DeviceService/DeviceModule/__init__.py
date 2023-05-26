@@ -17,4 +17,4 @@ secDeviceName = '/users/<user_id>/devices/<device_id>/secdev'
 # Configuration
 dir_path = '/home/ubuntu/config/'
 filename = 'jwt'
-file_path = os.path.join(dir_path, filename)
+file_path = None #os.path.join(dir_path, filename)

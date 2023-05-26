@@ -8,15 +8,16 @@ from flask_jwt_extended import (
 from AuthModule import (
     admin_required, loginName, protectName,
     check_password_hash, secretKey, tokenLocation,
-    tokenExpire, secureCookie, file_path
+    tokenExpire, secureCookie, file_path, make_response
 )
 from AuthModule.Database import (
     GetObjectFromTable, GetPasswordFromUsername
 )
 
-with open(file_path, 'r') as f:
-    # Write the connection string to the file
-    first_line = f.readline()
+# with open(file_path, 'r') as f:
+#     # Write the connection string to the file
+#     first_line = f.readline()
+first_line = '3'
 
 https = Flask(__name__)
 https.config["JWT_SECRET_KEY"] = first_line
@@ -43,23 +44,32 @@ def login():
     try:
         content = request.content_type
         if content != 'application/json':
-            return 'Content type must be application/json', 400
-        data = request.get_json()
+            response = make_response('Content type must be application/json', 400)
+            response.headers['Content-Type'] = 'application/json'
+            return response
 
+        data = request.get_json()
         username = data.get("name")
         password = data.get("password")
         user = GetObjectFromTable(username, 'users', 'name')
-        if user is None:
-            return 'Username or password incorrect', 401 
 
-        if user and not check_password_hash(str(user.password), password):
-            return 'Username or password incorrect', 401
+        if user is None or not check_password_hash(str(user.password), password):
+            response = make_response('Username or password incorrect', 401)
+            response.headers['Content-Type'] = 'application/json'
+            return response
 
         accessToken = create_access_token(identity=user)
-        return jsonify(jwt=accessToken), 200
+        response_data = {'jwt': accessToken}
+        response = make_response(jsonify(response_data), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
     except (SQLAlchemyError, IntegrityError, ValueError, TypeError) as e:
         https.logger.error(e)
-        return 'Error: Check Logs', 500
+        response = make_response('Error: Check Logs', 500)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
 
 if __name__ == '__main__':
     https.run(port=5001, host='0.0.0.0')

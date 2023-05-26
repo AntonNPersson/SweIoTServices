@@ -1,6 +1,10 @@
-from KeyModule import GetKeys, executeQuery, Devices, GetModel
+from KeyModule import GetKeys, executeQuery, Devices, GetModel, file_path
 from .crypto import HashToPem, PemToHash
 import json, re
+
+with open(file_path, 'r') as f:
+    # Write the connection string to the file
+    first_line = f.readline()
 
 def GetPrivateKeyFromID(id, session, base):
         # Query the database for the private key associated with the provided ID
@@ -35,8 +39,8 @@ def GetPublicKeyFromID(id, session, base):
                 return None
             print('Success')
             # Return the public key as a PEM-encoded string
-            private_key = HashToPem(Key.publickey, 'ECC Public Key')
-            return str(private_key)
+            public_key = HashToPem(Key.publickey, 'ECC Public Key')
+            return str(public_key)
         except Exception:
             return None, 404
 
@@ -104,8 +108,8 @@ def AddKeyPairFromDevice(privateKey, publicKey, deviceId):
             session.commit()
             print('Key pair added successfully')
             return 'Key pair added successfully'
-        except Exception:
-            return 'An error occurred while adding the key pair'
+        except Exception as e:
+            return 'An error occurred while adding the key pair', e
     return executeQuery(queryFunc, privateKey, publicKey, deviceId)
 
 

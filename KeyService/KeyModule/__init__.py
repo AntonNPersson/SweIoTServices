@@ -22,4 +22,4 @@ getPrName = '/users/<user_id>/devices/<device_id>/keys/private'
 # Configuration
 dir_path = '/home/ubuntu/config/'
 filename = 'jwt'
-file_path = os.path.join(dir_path, filename)
+file_path = None#os.path.join(dir_path, filename)

@@ -2,7 +2,7 @@ from werkzeug.security import check_password_hash
 from flask_jwt_extended import (
     create_access_token, get_current_user, JWTManager, jwt_required, current_user
 )
-from flask import jsonify, request, Flask
+from flask import jsonify, request, Flask, make_response
 import os
 from functools import wraps
 from enum import Enum
@@ -20,4 +20,4 @@ tokenExpire = 3600
 
 fileName = 'jwt'
 dir_path = '/home/ubuntu/config/'
-file_path = os.path.join(dir_path, fileName)
+file_path = None #os.path.join(dir_path, fileName)

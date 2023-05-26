@@ -119,7 +119,11 @@ def SignMessageMain(user_id, device_id):
     if is_mac_address(device_id):
         device_id = GetIdFromMacWithoutSession(device_id, db, base)
     device = GetSpecificFromColumnInTable(db, base, device_id, 'customer_id', 'devices')
-    if device is None or device != customer:
+    if device is None:
+        db.close()
+        response = {"signed_message": "Device does not exist"}
+        return make_response(jsonify(response), 200, {'Content-Type': 'application/json'})
+    if device != customer:
         db.close()
         response = {"signed_message": "Device does not belong to user"}
         return make_response(jsonify(response), 200, {'Content-Type': 'application/json'})

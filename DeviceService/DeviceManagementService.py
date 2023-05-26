@@ -91,7 +91,7 @@ def secDevice(user_id, device_id):
         return r
     if is_mac_address(device_id):
         device_id = GetIdFromMacWithoutSession(device_id, db, base)
-    device = GetFromTable(device_id, 'devices')
+    device = GetFromTable('devices', device_id)
     if device is None or device.customer_id != customer:
         response = {'result': False}
         r = make_response(jsonify(response), 403)

@@ -11,8 +11,12 @@ with open(file_path, 'r') as f:
 
 def SignWithPrivateKey(private_key_pem, message):
     # Load the private key from the PEM string
-    private_key = serialization.load_pem_private_key(
-        private_key_pem, password=first_line.encode('utf-8'), backend=default_backend())
+    if is_private_key_unencrypted(private_key_pem):
+        private_key = serialization.load_pem_private_key(
+            private_key_pem, password=None, backend=default_backend())
+    else:
+        private_key = serialization.load_pem_private_key(
+            private_key_pem, password=first_line.encode('utf-8'), backend=default_backend())
 
     # Convert message to bytes
     messageBytes = message.encode('utf-8')
@@ -26,6 +30,16 @@ def SignWithPrivateKey(private_key_pem, message):
 
     # Return the signature as a string
     return f"{message}#{hex_signature}"
+
+def is_private_key_unencrypted(private_key_pem):
+    try:
+        serialization.load_pem_private_key(private_key_pem, password=None)
+        return True  # Private key is not password-protected
+    except ValueError as e:
+        if str(e) == "Private key is encrypted.":
+            return False  # Private key is password-protected
+        else:
+            raise  # Reraise other ValueError exceptions
 
 from cryptography.fernet import Fernet
 

@@ -91,13 +91,14 @@ def secDevice(user_id, device_id):
         return r
     if is_mac_address(device_id):
         device_id = GetIdFromMacWithoutSession(device_id, db, base)
-    device = GetFromTable('devices', device_id)
-    if device is None or device.customer_id != customer:
+    device = GetSpecificFromColumnInTable(db, base, device_id, 'customer_id', 'devices')
+    if device is None or device != customer:
         response = {'result': False}
         r = make_response(jsonify(response), 403)
         r.headers['Content-Type'] = 'application/json'
         return r
-    if(device.secure == False):
+    deviceSecure = GetSpecificFromColumnInTable(db, base, device_id, 'secure', 'devices')
+    if(deviceSecure == False or deviceSecure is None):
         response = {'result': False}
         r = make_response(jsonify(response), 403)
         r.headers['Content-Type'] = 'application/json'

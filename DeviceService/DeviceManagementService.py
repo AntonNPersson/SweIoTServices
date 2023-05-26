@@ -72,7 +72,10 @@ def ownsDevice(user_id, device_id):
     except (SQLAlchemyError, IntegrityError, ValueError, TypeError) as e:
         app.logger.error(e)
         db.close()
-        return 'Error: Check Logs', 500
+        response = {'result': 'Error: Check Logs'}
+        r = make_response(jsonify(response), 500)
+        r.headers['Content-Type'] = 'application/json'
+        return r
 
 @app.route(secDeviceName, methods=['GET'])
 @jwt_required()

@@ -100,26 +100,40 @@ def SignMessageMain(user_id, device_id):
     device = GetSpecificFromColumnInTable(db, base, device_id, 'customer_id', 'devices')
     if device is None or device != customer:
         db.close()
-        return 'Device does not belong to user', 400
+        response = {"signed_message": "Device does not belong to user"}
+        r = make_response(jsonify(response), 200)
+        r.headers['Content-Type'] = 'application/json'
+        return r
     try:
         data = CheckContentType()
         if(data):
             privateKey = GetPrivateKeyFromID(device_id, db, base)
             db.close()
             if(privateKey is None):
-                return 'No private key found for device with ID: ' + device_id, 200
+                response = {'result': 'No private key found for device with ID: ' + device_id}
+                r = make_response(jsonify(response), 200)
+                r.headers['Content-Type'] = 'application/json'
+                return r
             message = SignWithPrivateKey(privateKey, data['message'])
             if(message is None):
-                return 'Failed to sign message', 200
+                response = {'signed_message': 'Failed to sign message'}
+                r = make_response(jsonify(response), 200)
+                r.headers['Content-Type'] = 'application/json'
+                return r
             response = {"signed_message": message}
             r = make_response(jsonify(response), 200)
             r.headers['Content-Type'] = 'application/json'
             return r
         else:
-            return 'Wrong Content type', 400
+            response = {'signed_message': 'Failed to sign message'}
+            r = make_response(jsonify(response), 200)
+            r.headers['Content-Type'] = 'application/json'
+            return r
     except Exception as e:
-        https.logger.error(e)
-        return 'Error: Check Logs', 500
+        response = {"signed_message": e}
+        r = make_response(jsonify(response), 200)
+        r.headers['Content-Type'] = 'application/json'
+        return r
 if __name__ == "__main__":
     https.run(port=5002, host='0.0.0.0')
     

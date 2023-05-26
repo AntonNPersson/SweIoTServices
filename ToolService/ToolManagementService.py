@@ -139,7 +139,7 @@ def Remove(object):
     # remove the 'id' field from the values dictionary
     values.pop('id', None)
     # remove the specified record from the database table
-    RemoveFromTable(object, values)
+    RemoveMultipleFromTable(object, values)
     # return a list of all records in the specified table
     return redirect('/administrator/all/'+ object +'/all/tools/manager'), 200
 

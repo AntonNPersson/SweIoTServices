@@ -112,6 +112,10 @@ def SignMessageMain(user_id, device_id):
     db, base = GetSession()
     userid = get_jwt_identity()
     customer = GetSpecificFromColumnInTable(db, base, userid, 'customer_id', 'users')
+    if customer is None:
+        db.close()
+        response = {"signed_message": "User does not exist"}
+        return make_response(jsonify(response), 200, {'Content-Type': 'application/json'})
     if is_mac_address(device_id):
         device_id = GetIdFromMacWithoutSession(device_id, db, base)
     device = GetSpecificFromColumnInTable(db, base, device_id, 'customer_id', 'devices')

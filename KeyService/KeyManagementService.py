@@ -117,7 +117,7 @@ def SignMessageMain(user_id, device_id):
             message = SignWithPrivateKey(privateKey, data['message'])
             if(message is None):
                 response = {'signed_message': 'Failed to sign message'}
-                r = make_response(jsonify(response), 200)
+                r = make_response(jsonify(response), 500)
                 r.headers['Content-Type'] = 'application/json'
                 return r
             response = {"signed_message": message}
@@ -126,12 +126,12 @@ def SignMessageMain(user_id, device_id):
             return r
         else:
             response = {'signed_message': 'Failed to sign message'}
-            r = make_response(jsonify(response), 200)
+            r = make_response(jsonify(response), 500)
             r.headers['Content-Type'] = 'application/json'
             return r
     except Exception as e:
         response = {"signed_message": e}
-        r = make_response(jsonify(response), 200)
+        r = make_response(jsonify(response), 500)
         r.headers['Content-Type'] = 'application/json'
         return r
 if __name__ == "__main__":

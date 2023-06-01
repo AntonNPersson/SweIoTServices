@@ -46,7 +46,7 @@ def SignWithPrivateKey(private_key_pem, message):
     except Exception as e:
         print('Using password...')
         private_key = serialization.load_pem_private_key(
-                private_key_pem, password=b'3', backend=default_backend())
+                private_key_pem, password=first_line.encode(), backend=default_backend())
 
     # Convert message to bytes
     messageBytes = message.encode('utf-8')

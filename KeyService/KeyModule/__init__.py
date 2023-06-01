@@ -18,6 +18,8 @@ signingName = '/users/<user_id>/devices/<device_id>/keys/sign'
 splitSigningName = '/users/<user_id>/devices/<device_id>/keys/splitSign'
 getPuName = '/users/<user_id>/devices/<device_id>/keys/public'
 getPrName = '/users/<user_id>/devices/<device_id>/keys/private'
+signMessageWithKey = '/administrator/<user_id>/devices/<device_id>/keys/signMessageWithKey'
+verifyMessageWithKey = '/administrator/<user_id>/devices/<device_id>/keys/verifyMessageWithKey'
 
 # Configuration
 dir_path = '/home/ubuntu/config/'

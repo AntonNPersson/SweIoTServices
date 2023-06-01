@@ -4,7 +4,7 @@ from KeyModule.Database import (
     RemoveMultipleKeyPairFromDevice, is_mac_address, GetIdFromMacWithoutSession
 )
 from KeyModule.crypto import (
-    RSAKeyGenerator, SignWithPrivateKey, ECCKeyGenerator
+    RSAKeyGenerator, SignWithPrivateKey, ECCKeyGenerator, VerifyWithPublicKey
 )
 
 import os
@@ -16,7 +16,7 @@ from KeyModule import (
     signingName, splitSigningName,
     getPrName, getPuName, file_path, GetSession,
     GetSpecificFromColumnInTable, get_jwt_identity, jsonify,
-    make_response
+    make_response, signMessageWithKey, verifyMessageWithKey
     )
 
 with open(file_path, 'r') as f:
@@ -35,11 +35,11 @@ jwt = JWTManager(https)
 def GenerateKeysMain(user_id, device_id):
     try:
         private_key, public_key = ECCKeyGenerator()
-        print(AddKeyPairFromDevice(private_key, public_key, deviceId=device_id))
+        print(AddKeyPairFromDevice(private_key, public_key.encode(), deviceId=device_id))
         if private_key and public_key:
             response = {
                 "private_key": private_key.decode('utf-8'),
-                "public_key": public_key.decode('utf-8')
+                "public_key": public_key
             }
             r = make_response(jsonify(response), 200)
             r.headers['Content-Type'] = 'application/json'
@@ -93,7 +93,7 @@ def GetPuKeyMain(user_id, device_id):
         if publicKey is None:
             return 'No public key found for device with ID: ' + device_id, 404
         else:
-            response = {"public_key": publicKey}
+            response = {"public_key": str(publicKey)}
             r = make_response(jsonify(response), 200)
             r.headers['Content-Type'] = 'application/json'
             return r
@@ -146,6 +146,35 @@ def SignMessageMain(user_id, device_id):
             return make_response(jsonify(response), 500, {'Content-Type': 'application/json'})
     except Exception as e:
         response = {"signed_message": str(e)}
+        return make_response(jsonify(response), 500, {'Content-Type': 'application/json'})
+    
+# DEBUG METHODS
+@https.route(signMessageWithKey, methods=['POST'])
+def SignMessageWithKeyMain(user_id, device_id):
+    data = CheckContentType()
+    if data:
+        message = SignWithPrivateKey(data['private_key'], data['message'])
+        if message is None:
+            response = {'signed_message': 'Failed to sign message'}
+            return make_response(jsonify(response), 500, {'Content-Type': 'application/json'})
+        response = {"signed_message": message}
+        return make_response(jsonify(response), 200, {'Content-Type': 'application/json'})
+    else:
+        response = {'signed_message': 'Failed to sign message'}
+        return make_response(jsonify(response), 500, {'Content-Type': 'application/json'})
+    
+@https.route(verifyMessageWithKey, methods=['POST'])
+def VerifyMessageWithKeyMain(user_id, device_id):
+    data = CheckContentType()
+    if data:
+        message = VerifyWithPublicKey(data['public_key'], data['message'], data['signature'])
+        if not message:
+            response = {'verified': False}
+            return make_response(jsonify(response), 200, {'Content-Type': 'application/json'})
+        response = {"verified": message}
+        return make_response(jsonify(response), 200, {'Content-Type': 'application/json'})
+    else:
+        response = {'verified': False}
         return make_response(jsonify(response), 500, {'Content-Type': 'application/json'})
 
 if __name__ == "__main__":

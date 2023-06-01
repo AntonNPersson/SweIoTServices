@@ -31,18 +31,13 @@ def GetIdFromMacWithoutSession(mac, session, base):
         return device.id
     
 def GetPublicKeyFromID(id, session, base):
-        try:
-            # Query the keys table to get the key with the specified device_id
-            Key = session.query(GetKeys(base)).filter_by(device_id=id).first()
-            # Raise an exception if no key is found
-            if Key is None:
-                return None
-            print('Success')
-            # Return the public key as a PEM-encoded string
-            public_key = HashToPem(Key.publickey, 'ECC Public Key')
-            return str(public_key)
-        except Exception:
-            return None, 404
+        # Query the database for the public key associated with the provided ID
+        Key = session.query(GetKeys(base)).filter_by(device_id=id).first()
+        if Key is None:
+            return None
+        print('Success')
+        # Return the public key
+        return Key.publickey
 
 def RemoveKeyPairFromDevice(deviceId):
     def queryFunc(session, base, deviceId):
@@ -95,6 +90,7 @@ def AddKeyPairFromDevice(privateKey, publicKey, deviceId):
             if not device:
                 return "No device found with device ID: " + deviceId
             customerId = device.customer_id
+            print(type(publicKey))
 
             # Insert keys into database
             keysTable = base.metadata.tables.get('public.rsakeys')

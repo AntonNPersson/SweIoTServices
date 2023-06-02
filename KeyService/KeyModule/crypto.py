@@ -5,6 +5,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.exceptions import InvalidSignature
+from ecdsa import SigningKey, NIST256p
 
 with open(file_path, 'r') as f:
     # Write the connection string to the file
@@ -58,7 +59,7 @@ def SignWithPrivateKey(private_key_pem, message):
     # Convert the signature to a hexadecimal string
     hex_signature = signature.hex()
         # Convert the public key to hex format
-    public_key_to_pem = convert_to_pem('MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEbLxNZJE23DzIFu4prLbJ8uRN+l7zqeeapMz9SYBicPqY1w9CXoiCbFcfudKMNr0baIZeLQ+F/HZygyfmu8tk3g==')
+    public_key_to_pem = convert_to_pem('MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdELKx2f0XWrjf84hm4kx/45uha3gAf06eNQX2qiFEHfqF3RT4zbwlrl/1fY7wTiad6DodCfnIvYusyPGQMUUlA==')
     print(public_key_to_pem)
     pem = public_key_to_hex(public_key_to_pem)
     print(pem)
@@ -88,45 +89,27 @@ def verify_signature(public_key, message, signature):
 
 def ECCKeyGenerator():
     try:
-        # Generate an ECC private key using the NIST P-256 curve
-        private_key = ec.generate_private_key(
-            ec.SECP256R1(),  # Use the NIST P-256 curve
-            default_backend()
-        )
+        # Generate private key
+        private_key = SigningKey.generate(curve=NIST256p)
 
-        # Get the corresponding public key
-        public_key = private_key.public_key()
+        # Validate private key
+        if not private_key:
+            raise ValueError("Private key is empty")
 
-        # Serialize the public key in the desired format (e.g., PEM or DER)
-        public_key_pem = public_key.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        )
+        # Generate public key
+        public_key = private_key.get_verifying_key()
 
-        # Ensure the public key is exactly 64 bytes by stripping the header and newline characters
-        public_key_pem = public_key_pem.strip().decode().split("\n")[1:-1]
-        public_key_hex = "".join(public_key_pem)
+        # Serialize keys to PEM format
+        private_key_pem = private_key.to_pem()
+        public_key_hex = public_key.to_string().hex()
 
-        # Generate a password for the private key
-        password = first_line.encode()  # Replace with your desired password
-
-        # Serialize the private key in PEM format with the specified password
-        private_key_pem = private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.BestAvailableEncryption(password)
-        )
-
-        print("Public key: " + public_key_hex + " length: " + str(len(public_key_hex)))
-        # Print the private key in PEM format
-        print(private_key_pem)
-
+        # Return keys
         return private_key_pem, public_key_hex
+
     except ValueError as ve:
         print("Error while generating ECC key pair: " + str(ve))
     except Exception as error:
         print("Error while generating ECC key pair: " + str(error))
-
 
     # Return None values if an error occurs
     return None, None

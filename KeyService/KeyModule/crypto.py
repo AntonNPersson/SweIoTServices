@@ -1,11 +1,9 @@
 from KeyModule import hashlib, hashes, rsa, padding, ec, serialization, base64, file_path
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.serialization import BestAvailableEncryption, load_pem_private_key
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.exceptions import InvalidSignature
-from ecdsa import SigningKey, NIST256p
+from ecdsa import SigningKey, VerifyingKey
+from ecdsa.curves import NIST256p
 from ecdsa.keys import sigencode_string
 from hashlib import sha256
 
@@ -43,13 +41,7 @@ def VerifyWithPublicKey(public_key_pem, message, signature):
     
 def SignWithPrivateKey(private_key_pem, message):
     # Load the private key from the PEM string
-    try:
-        private_key = serialization.load_pem_private_key(
-                private_key_pem, password=None, backend=default_backend())
-    except Exception as e:
-        print('Using password...')
-        private_key = serialization.load_pem_private_key(
-                private_key_pem, password=first_line.encode(), backend=default_backend())
+    private_key = SigningKey.from_pem(private_key_pem)
 
     # Convert message to bytes
     messageBytes = message.encode('utf-8')

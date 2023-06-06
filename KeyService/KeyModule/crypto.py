@@ -56,7 +56,7 @@ def SignWithPrivateKey(private_key_pem, message):
 
     # Sign the message using the private key
     signature = private_key.sign(
-        messageBytes, hashfunc=hashes.SHA256(), sigencode=sigencode_string)
+        messageBytes, hashfunc=sha256, sigencode=sigencode_string)
 
     # Convert the signature to a hexadecimal string
     hex_signature = signature.hex()

@@ -6,6 +6,8 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.exceptions import InvalidSignature
 from ecdsa import SigningKey, NIST256p
+from ecdsa.keys import sigencode_string
+from hashlib import sha256
 
 with open(file_path, 'r') as f:
     # Write the connection string to the file
@@ -54,7 +56,7 @@ def SignWithPrivateKey(private_key_pem, message):
 
     # Sign the message using the private key
     signature = private_key.sign(
-        messageBytes, ec.ECDSA(hashes.SHA256()))
+        messageBytes, hashfunc=hashes.SHA256(), sigencode=sigencode_string)
 
     # Convert the signature to a hexadecimal string
     hex_signature = signature.hex()
